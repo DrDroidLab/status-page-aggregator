@@ -19,6 +19,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  ...(process.env.NODE_ENV === "production" && {
+    basePath: "/status-page-aggregator",
+    assetPrefix: "/status-page-aggregator",
+  }),
 };
 
 export default nextConfig;

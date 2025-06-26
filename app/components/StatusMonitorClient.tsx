@@ -267,7 +267,7 @@ export function StatusMonitorClient({
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
                 <Image
-                  src="/status-page-aggregator/logos/drdroid-logo-full.png"
+                  src="/logos/drdroid-logo-full.png"
                   alt="DrDroid Logo"
                   width={100}
                   height={100}
