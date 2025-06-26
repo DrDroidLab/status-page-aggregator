@@ -1,7 +1,8 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "https://drdroid.io/status-page-aggregator/api/check-incidents",
+      "path": "/api/check-incidents",
       "schedule": "* * * * *"
     }
   ]
