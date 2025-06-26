@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/check-incidents",
-      "schedule": "* * * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }
