@@ -1141,11 +1141,11 @@ function StatusMonitor() {
     // Debug: Log environment variables (they will be undefined in the browser due to NEXT_PUBLIC_ prefix)
     console.log(
       "Supabase URL:",
-      process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 10) + "..."
+      process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(0, 10) + "...",
     );
     console.log(
       "Supabase Key exists:",
-      !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     );
 
     // Fetch statuses from Supabase
@@ -1166,31 +1166,12 @@ function StatusMonitor() {
           };
           return acc;
         },
-        {} as Record<string, any>
+        {} as Record<string, any>,
       );
       setStatusMap(statusMap);
-      // Debug: Log the final status map with more details
-      console.log("Status Map:", {
-        serviceCount: Object.keys(statusMap).length,
-        services: Object.keys(statusMap),
-        sampleService: statusMap[Object.keys(statusMap)[0]],
-      });
     };
     fetchStatuses();
   }, []);
-
-  // Debug: Log the query results
-  useEffect(() => {
-    console.log("Supabase Query Results:", {
-      hasData: !!statusRows,
-      rowCount: statusRows?.length,
-      error: error?.message,
-      firstRow: statusRows?.[0],
-    });
-    if (error) {
-      console.error("Supabase Error:", error);
-    }
-  }, [statusRows, error]);
 
   return (
     <Suspense
@@ -1201,8 +1182,7 @@ function StatusMonitor() {
             <p className="text-muted-foreground">Loading status dashboard...</p>
           </div>
         </div>
-      }
-    >
+      }>
       <StatusMonitorClient services={services} statusMap={statusMap} />
     </Suspense>
   );

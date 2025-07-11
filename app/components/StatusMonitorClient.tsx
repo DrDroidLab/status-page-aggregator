@@ -169,7 +169,7 @@ export function StatusMonitorClient({
         (s) =>
           s.name.toLowerCase().includes(q) ||
           s.tags.some((tag) => tag.toLowerCase().includes(q)) ||
-          (statusMap[s.slug]?.status || "unknown").toLowerCase().includes(q)
+          (statusMap[s.slug]?.status || "unknown").toLowerCase().includes(q),
       );
     }
     // Attach computed status for sorting
@@ -266,11 +266,7 @@ export function StatusMonitorClient({
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
                 <img
-                  src={`${
-                    process.env.NODE_ENV === "production"
-                      ? "/status-page-aggregator"
-                      : ""
-                  }/logos/drdroid-logo.svg`}
+                  src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/drdroid-logo.svg`}
                   alt="DrDroid Logo"
                   width={100}
                   height={100}
@@ -293,12 +289,10 @@ export function StatusMonitorClient({
                 variant="outline"
                 size="sm"
                 asChild
-                className="relative bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 hover:border-blue-400 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              >
+                className="relative bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 hover:border-blue-400 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <Link
                   href="https://github.com/DrDroidLab/status-page-aggregator"
-                  className="flex items-center gap-2 font-semibold text-blue-700 hover:text-blue-800"
-                >
+                  className="flex items-center gap-2 font-semibold text-blue-700 hover:text-blue-800">
                   <Github className="w-4 h-4" />⭐ Star on GitHub
                 </Link>
               </Button>
@@ -327,8 +321,7 @@ export function StatusMonitorClient({
             </span>
             <Link
               href="https://github.com/DrDroidLab/status-page-aggregator"
-              className="underline hover:no-underline font-medium"
-            >
+              className="underline hover:no-underline font-medium">
               Clone now
             </Link>
           </div>
@@ -345,8 +338,7 @@ export function StatusMonitorClient({
           <span className="font-medium">Filter by Category:</span>
           <Select
             value={category}
-            onValueChange={(value) => updateUrlParams(undefined, value)}
-          >
+            onValueChange={(value) => updateUrlParams(undefined, value)}>
             <SelectTrigger className="w-56">
               <SelectValue>
                 {category === "all" ? "All Categories" : category}
@@ -370,27 +362,23 @@ export function StatusMonitorClient({
               <TableRow>
                 <TableHead
                   className="cursor-pointer select-none"
-                  onClick={() => handleSort("provider")}
-                >
+                  onClick={() => handleSort("provider")}>
                   Provider{sortArrow("provider")}
                 </TableHead>
                 <TableHead
                   className="cursor-pointer select-none"
-                  onClick={() => handleSort("status")}
-                >
+                  onClick={() => handleSort("status")}>
                   Status{sortArrow("status")}
                 </TableHead>
                 <TableHead
                   className="cursor-pointer select-none"
-                  onClick={() => handleSort("lastIncident")}
-                >
+                  onClick={() => handleSort("lastIncident")}>
                   Last Incident{sortArrow("lastIncident")}
                 </TableHead>
                 <TableHead>Links</TableHead>
                 <TableHead
                   className="cursor-pointer select-none"
-                  onClick={() => handleSort("tags")}
-                >
+                  onClick={() => handleSort("tags")}>
                   Tags{sortArrow("tags")}
                 </TableHead>
               </TableRow>
@@ -409,9 +397,8 @@ export function StatusMonitorClient({
                       <span className="inline-flex items-center gap-2">
                         <span
                           className={`w-3 h-3 rounded-full ${getSharpStatusColor(
-                            serviceStatus
-                          )}`}
-                        ></span>
+                            serviceStatus,
+                          )}`}></span>
                         {getStatusText(serviceStatus)}
                       </span>
                     </TableCell>
@@ -426,7 +413,7 @@ export function StatusMonitorClient({
                             day: "numeric",
                             hour: "2-digit",
                             minute: "2-digit",
-                          }
+                          },
                         )
                       ) : (
                         <span className="text-muted-foreground">None</span>
@@ -438,8 +425,7 @@ export function StatusMonitorClient({
                         <Button size="sm" variant="outline" asChild>
                           <Link
                             href={`/${service.slug}`}
-                            className="flex items-center gap-2"
-                          >
+                            className="flex items-center gap-2">
                             Details
                           </Link>
                         </Button>
@@ -448,8 +434,7 @@ export function StatusMonitorClient({
                             href={service.statusUrl}
                             className="flex items-center gap-2"
                             target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                            rel="noopener noreferrer">
                             <ExternalLink className="w-4 h-4" />
                           </Link>
                         </Button>
@@ -458,8 +443,7 @@ export function StatusMonitorClient({
                             href={service.communityUrl}
                             className="flex items-center gap-2"
                             target="_blank"
-                            rel="noopener noreferrer"
-                          >
+                            rel="noopener noreferrer">
                             <MessageCircle className="w-4 h-4" />
                           </Link>
                         </Button>
@@ -472,8 +456,7 @@ export function StatusMonitorClient({
                           <Badge
                             key={tag}
                             variant="secondary"
-                            className={getTagColor(tag)}
-                          >
+                            className={getTagColor(tag)}>
                             {tag}
                           </Badge>
                         ))}
@@ -497,8 +480,7 @@ export function StatusMonitorClient({
               onClick={handleLoadMore}
               variant="outline"
               size="lg"
-              className="px-8"
-            >
+              className="px-8">
               Load More Services
             </Button>
           )}
@@ -544,11 +526,7 @@ export function StatusMonitorClient({
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
                     <img
-                      src={`${
-                        process.env.NODE_ENV === "production"
-                          ? "/status-page-aggregator"
-                          : ""
-                      }/logos/cursor_logo.jpeg`}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/cursor_logo.jpeg`}
                       alt="Cursor Logo"
                       width={32}
                       height={32}
@@ -565,11 +543,7 @@ export function StatusMonitorClient({
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
                     <img
-                      src={`${
-                        process.env.NODE_ENV === "production"
-                          ? "/status-page-aggregator"
-                          : ""
-                      }/logos/v0_logo.png`}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/v0_logo.png`}
                       alt="v0 Logo"
                       width={32}
                       height={32}
@@ -586,11 +560,7 @@ export function StatusMonitorClient({
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
                     <img
-                      src={`${
-                        process.env.NODE_ENV === "production"
-                          ? "/status-page-aggregator"
-                          : ""
-                      }/logos/vercel-icon-light.png`}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/vercel-icon-light.png`}
                       alt="Vercel Logo"
                       width={32}
                       height={32}
@@ -607,11 +577,7 @@ export function StatusMonitorClient({
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
                     <img
-                      src={`${
-                        process.env.NODE_ENV === "production"
-                          ? "/status-page-aggregator"
-                          : ""
-                      }/logos/supabase_logo.jpg`}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/supabase_logo.jpg`}
                       alt="Supabase Logo"
                       width={32}
                       height={32}
@@ -642,28 +608,24 @@ export function StatusMonitorClient({
               Want to add a service or report an issue?{" "}
               <Link
                 href="https://github.com/DrDroidLab/status-page-aggregator"
-                className="underline hover:no-underline"
-              >
+                className="underline hover:no-underline">
                 Contribute on GitHub
               </Link>
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-xs">
               <Link
                 href="https://github.com/DrDroidLab/status-page-aggregator"
-                className="hover:underline"
-              >
+                className="hover:underline">
                 🍴 Fork & Customize
               </Link>
               <Link
                 href="https://github.com/DrDroidLab/status-page-aggregator/issues"
-                className="hover:underline"
-              >
+                className="hover:underline">
                 🐛 Report Issues
               </Link>
               <Link
                 href="https://github.com/DrDroidLab/status-page-aggregator/discussions"
-                className="hover:underline"
-              >
+                className="hover:underline">
                 💬 Discussions
               </Link>
               <Link href="https://drdroid.io" className="hover:underline">
