@@ -59,6 +59,8 @@ Create `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
+NEXT_PUBLIC_HYPERLOOK_API_KEY=your-hyperlook-key
+
 # Email Configuration
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587

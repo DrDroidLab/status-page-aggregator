@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { TelemetryProvider } from "./components/TelemetryProvider";
+import TelemetryProvider from "@/components/TelemetryProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -64,7 +64,6 @@ export default function RootLayout({
     <html lang="en">
       <head></head>
       <body>
-        {/* Initialize telemetry as early as possible */}
         <TelemetryProvider />
         {children}
       </body>
