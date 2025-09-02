@@ -12,8 +12,8 @@ importers:
         specifier: ^3.9.1
         version: 3.9.1(react-hook-form@7.54.1(react@19.0.0))
       '@hyperlook/telemetry-sdk':
-        specifier: ^1.0.16
-        version: 1.0.16
+        specifier: ^1.0.17
+        version: 1.0.17
       '@radix-ui/react-accordion':
         specifier: 1.2.2
         version: 1.2.2(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -379,8 +379,8 @@ packages:
     peerDependencies:
       react-hook-form: ^7.0.0
 
-  '@hyperlook/telemetry-sdk@1.0.16':
-    resolution: {integrity: sha512-j2Coa+LOTBPahDDDFzFxgsYSXd+DWM9oVvBD7JSGUrWZlTrSOUfLafU/VcIUFPWxjEY5S2/YvknMJz02E5Yr0g==}
+  '@hyperlook/telemetry-sdk@1.0.17':
+    resolution: {integrity: sha512-Z69FpmsY2fD5/mZE+l5wrcNCBU2fet974tSgLbyU+h3ekTlWuQhRy2N+SaM+V+Ap0jJyy4wdFKg9zgn7jFo1pg==}
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -2471,7 +2471,7 @@ snapshots:
     dependencies:
       react-hook-form: 7.54.1(react@19.0.0)
 
-  '@hyperlook/telemetry-sdk@1.0.16':
+  '@hyperlook/telemetry-sdk@1.0.17':
     dependencies:
       rrweb: 2.0.0-alpha.18
 
