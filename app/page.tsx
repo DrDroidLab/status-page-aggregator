@@ -170,6 +170,13 @@ const services: Service[] = [
     tags: ["LLM Inference Layer Companies"],
   },
   {
+    name: "Inkeep",
+    statusUrl: "https://status.inkeep.com/",
+    communityUrl: "https://www.inkeep.com/",
+    slug: "inkeep",
+    tags: ["AI/ML", "Search", "Documentation"],
+  },
+  {
     name: "AssemblyAI",
     statusUrl: "https://status.assemblyai.com/",
     communityUrl: "https://reddit.com/r/MachineLearning",

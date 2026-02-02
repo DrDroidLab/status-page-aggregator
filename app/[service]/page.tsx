@@ -1368,6 +1368,42 @@ const serviceData = {
       },
     ],
   },
+  inkeep: {
+    name: "Inkeep",
+    slug: "inkeep",
+    statusUrl: "https://status.inkeep.com/",
+    communityUrl: "https://www.inkeep.com/",
+    tags: ["AI/ML", "Search", "Documentation"],
+    description:
+      "Inkeep provides AI-powered search and support solutions for documentation, enabling developers to build intelligent search experiences with natural language understanding.",
+    faq: [
+      {
+        question: "Is Inkeep down?",
+        answer:
+          "Check the current status above. Inkeep maintains high availability for AI-powered search services. Visit status.inkeep.com for real-time service health updates.",
+      },
+      {
+        question: "Why is search not working?",
+        answer:
+          "Search issues can be due to indexing delays, API rate limits, or service disruptions. Check your API configuration and the Inkeep status page for any ongoing incidents.",
+      },
+      {
+        question: "How to troubleshoot Inkeep API issues?",
+        answer:
+          "Verify your API keys, check rate limits, ensure proper search query formatting, and review your integration settings in the Inkeep dashboard.",
+      },
+      {
+        question: "What to do during Inkeep outages?",
+        answer:
+          "Implement fallback search mechanisms, use cached search results when possible, and monitor the status page for estimated resolution times.",
+      },
+      {
+        question: "How reliable is Inkeep's service?",
+        answer:
+          "Inkeep provides enterprise-grade reliability with global infrastructure, automatic scaling, and comprehensive monitoring for AI-powered search workloads.",
+      },
+    ],
+  },
   assemblyai: {
     name: "AssemblyAI",
     slug: "assemblyai",
@@ -1608,6 +1644,11 @@ const getStatusAPIUrl = (service: any) => {
       return {
         status: "https://status.openai.com/api/v2/summary.json",
         incidents: "https://status.openai.com/api/v2/incidents.json",
+      };
+    case "inkeep":
+      return {
+        status: "https://status.inkeep.com/api/v2/summary.json",
+        incidents: "https://status.inkeep.com/api/v2/incidents.json",
       };
     default:
       return null;
