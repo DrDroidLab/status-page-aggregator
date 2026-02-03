@@ -1478,6 +1478,231 @@ const serviceData = {
       },
     ],
   },
+  "oracle-cloud-infrastructure": {
+    name: "Oracle Cloud Infrastructure",
+    slug: "oracle-cloud-infrastructure",
+    statusUrl: "https://ocistatus.oraclecloud.com/",
+    communityUrl: "https://reddit.com/r/oracle",
+    tags: ["Cloud", "Infrastructure"],
+    description:
+      "Oracle Cloud Infrastructure is a deep and broad platform of cloud services that enables you to build and run a wide range of applications in a scalable, secure, highly available, and high-performance environment.",
+    faq: [
+      {
+        question: "Is Oracle Cloud Infrastructure down?",
+        answer:
+          "Check the current status above. OCI provides enterprise-grade reliability with global infrastructure and comprehensive service health monitoring.",
+      },
+      {
+        question: "How to monitor OCI service status?",
+        answer:
+          "Use the Oracle Cloud Infrastructure Status page for real-time updates, or set up monitoring and alerting within the OCI Console.",
+      },
+      {
+        question: "What to do during an OCI outage?",
+        answer:
+          "Check the official status page for updates and consider using multiple availability domains or regions for critical workloads.",
+      },
+    ],
+  },
+  "stripe-checkout": {
+    name: "Stripe Checkout",
+    slug: "stripe-checkout",
+    statusUrl: "https://stripestatus.com/",
+    communityUrl: "https://reddit.com/r/stripe",
+    tags: ["Payment", "E-commerce"],
+    description:
+      "Stripe Checkout is a conversion-optimized payments page that lets you accept payments quickly and securely. It handles complex payment flows and is optimized for mobile and desktop.",
+    faq: [
+      {
+        question: "Is Stripe Checkout down?",
+        answer:
+          "Check the current status above. Stripe maintains high availability for payment processing with multiple redundancies and monitoring systems.",
+      },
+      {
+        question: "How to handle Stripe outages?",
+        answer:
+          "Implement proper error handling in your application and consider having backup payment processors for critical transactions.",
+      },
+      {
+        question: "How reliable is Stripe?",
+        answer:
+          "Stripe maintains 99.99%+ uptime and processes billions of dollars in payments annually with enterprise-grade security and reliability.",
+      },
+    ],
+  },
+  "stripe-billing": {
+    name: "Stripe Billing",
+    slug: "stripe-billing",
+    statusUrl: "https://stripestatus.com/",
+    communityUrl: "https://reddit.com/r/stripe",
+    tags: ["Payment", "Subscription"],
+    description:
+      "Stripe Billing is a comprehensive billing platform for subscription businesses that automates recurring billing, invoice management, and revenue optimization.",
+    faq: [
+      {
+        question: "Is Stripe Billing down?",
+        answer:
+          "Check the current status above. Stripe Billing shares the same infrastructure as other Stripe services with enterprise-grade reliability.",
+      },
+      {
+        question: "How does Stripe handle billing outages?",
+        answer:
+          "Stripe has redundant systems and will retry failed billing attempts automatically. Critical billing operations are prioritized during any service issues.",
+      },
+    ],
+  },
+  "stripe-invoicing": {
+    name: "Stripe Invoicing",
+    slug: "stripe-invoicing",
+    statusUrl: "https://stripestatus.com/",
+    communityUrl: "https://reddit.com/r/stripe",
+    tags: ["Payment", "Invoicing"],
+    description:
+      "Stripe Invoicing provides flexible invoicing tools for businesses to create, send, and manage professional invoices with built-in payment processing.",
+    faq: [
+      {
+        question: "Is Stripe Invoicing down?",
+        answer:
+          "Check the current status above. Stripe Invoicing is built on the same reliable infrastructure as all Stripe services.",
+      },
+      {
+        question: "What happens to invoices during outages?",
+        answer:
+          "Existing invoices remain accessible and payments can still be processed. Invoice creation and management may be temporarily affected during service issues.",
+      },
+    ],
+  },
+  "supabase-auth": {
+    name: "Supabase Auth",
+    slug: "supabase-auth",
+    statusUrl: "https://status.supabase.com/",
+    communityUrl: "https://github.com/orgs/supabase/discussions",
+    tags: ["Authentication", "Backend"],
+    description:
+      "Supabase Auth provides user management and authentication for modern applications with support for social logins, email/password, and third-party providers.",
+    faq: [
+      {
+        question: "Is Supabase Auth down?",
+        answer:
+          "Check the current status above. Supabase Auth is part of the broader Supabase platform with enterprise-grade reliability and monitoring.",
+      },
+      {
+        question: "How to handle auth service outages?",
+        answer:
+          "Implement proper session management and consider caching user sessions locally for short-term resilience during service interruptions.",
+      },
+    ],
+  },
+  "fireworks-ai": {
+    name: "Fireworks AI",
+    slug: "fireworks-ai",
+    statusUrl: "https://status.fireworks.ai/",
+    communityUrl: "https://fireworks.ai/",
+    tags: ["AI", "ML"],
+    description:
+      "Fireworks AI provides fast inference for large language models and AI applications with optimized infrastructure for production workloads.",
+    faq: [
+      {
+        question: "Is Fireworks AI down?",
+        answer:
+          "Check the current status above. Fireworks AI provides enterprise-grade reliability for AI inference with global infrastructure.",
+      },
+      {
+        question: "How to handle AI service outages?",
+        answer:
+          "Implement proper timeout handling and consider having fallback AI providers or cached responses for critical AI-powered features.",
+      },
+    ],
+  },
+  "together-ai": {
+    name: "Together AI",
+    slug: "together-ai",
+    statusUrl: "https://status.together.ai/",
+    communityUrl: "https://together.ai/",
+    tags: ["AI", "ML"],
+    description:
+      "Together AI offers cloud platform for running and training machine learning models with focus on open source models and collaborative AI development.",
+    faq: [
+      {
+        question: "Is Together AI down?",
+        answer:
+          "Check the current status above. Together AI provides reliable infrastructure for machine learning workloads with monitoring and alerting.",
+      },
+      {
+        question: "How reliable is Together AI?",
+        answer:
+          "Together AI maintains high availability for ML inference and training workloads with dedicated infrastructure and support for production use cases.",
+      },
+    ],
+  },
+  "paypal-checkout": {
+    name: "PayPal",
+    slug: "paypal-checkout",
+    statusUrl: "https://status.paypal.com/",
+    communityUrl: "https://reddit.com/r/paypal",
+    tags: ["Payment", "E-commerce"],
+    description:
+      "PayPal is a global payment platform that enables secure online payments and money transfers for individuals and businesses worldwide.",
+    faq: [
+      {
+        question: "Is PayPal down?",
+        answer:
+          "Check the current status above. PayPal maintains robust infrastructure for payment processing with multiple data centers and redundancy.",
+      },
+      {
+        question: "How to handle PayPal outages?",
+        answer:
+          "Implement multiple payment options in your checkout flow and have clear messaging for users when payment services are temporarily unavailable.",
+      },
+      {
+        question: "How reliable is PayPal?",
+        answer:
+          "PayPal processes billions in payments annually with enterprise-grade security and maintains high availability across global markets.",
+      },
+    ],
+  },
+  "stytch": {
+    name: "Stytch",
+    slug: "stytch",
+    statusUrl: "https://status.stytch.com/",
+    communityUrl: "https://stytch.com/",
+    tags: ["Authentication", "Security"],
+    description:
+      "Stytch provides passwordless authentication infrastructure with magic links, OTP, biometrics, and other modern authentication methods.",
+    faq: [
+      {
+        question: "Is Stytch down?",
+        answer:
+          "Check the current status above. Stytch provides enterprise-grade authentication infrastructure with comprehensive monitoring.",
+      },
+      {
+        question: "How to handle authentication outages?",
+        answer:
+          "Implement proper session management, cache user sessions, and consider backup authentication methods for critical applications.",
+      },
+    ],
+  },
+  "firebase-auth": {
+    name: "Firebase Auth",
+    slug: "firebase-auth",
+    statusUrl: "https://status.firebase.google.com/",
+    communityUrl: "https://reddit.com/r/Firebase",
+    tags: ["Authentication", "Google"],
+    description:
+      "Firebase Authentication provides backend services and SDKs to authenticate users to your app with support for passwords, phone numbers, and federated identity providers.",
+    faq: [
+      {
+        question: "Is Firebase Auth down?",
+        answer:
+          "Check the current status above. Firebase Auth is part of Google Cloud infrastructure with enterprise-grade reliability.",
+      },
+      {
+        question: "How to handle Firebase Auth outages?",
+        answer:
+          "Implement proper error handling, cache authentication tokens, and consider offline authentication capabilities for critical app functions.",
+      },
+    ],
+  },
 };
 
 type PageProps = {
@@ -1545,6 +1770,20 @@ const getRssUrl = (service: any) => {
       return "https://status.together.ai/feed.rss";
     case "paypal-checkout":
       return "https://status.paypal.com/feed/rss";
+    case "neon":
+      return "https://neonstatus.com/pages/6878fc85709daa75be6c7e3c/rss";
+    case "gitlab":
+      return "https://status.gitlab.com/pages/5b36dc6502d06804c08349f7/rss";
+    case "redpanda":
+      return "https://status.redpanda.com/history.rss";
+    case "onesignal":
+      return "https://status.onesignal.com/history.rss";
+    case "recurly":
+      return "https://status.recurly.com/statuspage/recurly/subscribe/rss";
+    case "descope":
+      return "https://descopestatus.com/default/history.rss";
+    case "supertokens":
+      return "https://supertokens.instatus.com/default/history.rss";
     default:
       return null;
   }
@@ -1672,6 +1911,141 @@ const getStatusAPIUrl = (service: any) => {
         status: "https://www.stripestatus.com/api/v2/status.json",
         incidents: "https://www.stripestatus.com/api/v2/incidents.json",
       };
+    case "planetscale":
+      return {
+        status: "https://www.planetscalestatus.com/api/v2/status.json",
+        incidents: "https://www.planetscalestatus.com/api/v2/incidents.json",
+      };
+    case "github":
+      return {
+        status: "https://www.githubstatus.com/api/v2/status.json",
+        incidents: "https://www.githubstatus.com/api/v2/incidents.json",
+      };
+    case "discord":
+      return {
+        status: "https://discordstatus.com/api/v2/status.json",
+        incidents: "https://discordstatus.com/api/v2/incidents.json",
+      };
+    case "akamai":
+      return {
+        status: "https://www.akamaistatus.com/api/v2/status.json",
+        incidents: "https://www.akamaistatus.com/api/v2/incidents.json",
+      };
+    case "quickbooks-online-api":
+      return {
+        status: "https://status.developer.intuit.com/api/v2/status.json",
+        incidents: "https://status.developer.intuit.com/api/v2/incidents.json",
+      };
+    case "grafana-cloud":
+      return {
+        status: "https://status.grafana.com/api/v2/status.json",
+        incidents: "https://status.grafana.com/api/v2/incidents.json",
+      };
+    case "sparkpost":
+      return {
+        status: "https://status.sparkpost.com/api/v2/status.json",
+        incidents: "https://status.sparkpost.com/api/v2/incidents.json",
+      };
+    case "messagebird":
+      return {
+        status: "https://status.bird.com/api/v2/status.json",
+        incidents: "https://status.bird.com/api/v2/incidents.json",
+      };
+    case "vonage-nexmo":
+      return {
+        status: "https://vonageapi.statuspage.io/api/v2/status.json",
+        incidents: "https://vonageapi.statuspage.io/api/v2/incidents.json",
+      };
+    case "cockroachdb-cloud":
+      return {
+        status: "https://status.cockroachlabs.cloud/api/v2/status.json",
+        incidents: "https://status.cockroachlabs.cloud/api/v2/incidents.json",
+      };
+    case "clickhouse-cloud":
+      return {
+        status: "https://status.clickhouse.com/api/v2/status.json",
+        incidents: "https://status.clickhouse.com/api/v2/incidents.json",
+      };
+    case "influxdb-cloud":
+      return {
+        status: "https://status.influxdata.com/api/v2/status.json",
+        incidents: "https://status.influxdata.com/api/v2/incidents.json",
+      };
+    case "firebolt":
+      return {
+        status: "https://status.firebolt.io/api/v2/status.json",
+        incidents: "https://status.firebolt.io/api/v2/incidents.json",
+      };
+    case "victoriametrics-cloud":
+      return {
+        status: "https://status.victoriametrics.com/api/v2/status.json",
+        incidents: "https://status.victoriametrics.com/api/v2/incidents.json",
+      };
+    case "sinch":
+      return {
+        status: "https://status.sinch.com/api/v2/status.json",
+        incidents: "https://status.sinch.com/api/v2/incidents.json",
+      };
+    case "plivo":
+      return {
+        status: "https://status.plivo.com/api/v2/status.json",
+        incidents: "https://status.plivo.com/api/v2/incidents.json",
+      };
+    case "telnyx":
+      return {
+        status: "https://status.telnyx.com/api/v2/status.json",
+        incidents: "https://status.telnyx.com/api/v2/incidents.json",
+      };
+    case "bandwidth":
+      return {
+        status: "https://status.bandwidth.com/api/v2/status.json",
+        incidents: "https://status.bandwidth.com/api/v2/incidents.json",
+      };
+    case "pusher-beams":
+      return {
+        status: "https://status.pusher.com/api/v2/status.json",
+        incidents: "https://status.pusher.com/api/v2/incidents.json",
+      };
+    case "postman-api-hub":
+      return {
+        status: "https://status.postman.com/api/v2/status.json",
+        incidents: "https://status.postman.com/api/v2/incidents.json",
+      };
+    case "kong-gateway":
+      return {
+        status: "https://status.konghq.com/api/v2/status.json",
+        incidents: "https://status.konghq.com/api/v2/incidents.json",
+      };
+    case "tyk":
+      return {
+        status: "https://status.tyk.io/api/v2/status.json",
+        incidents: "https://status.tyk.io/api/v2/incidents.json",
+      };
+    case "upstash":
+      return {
+        status: "https://status.upstash.com/api/v2/status.json",
+        incidents: "https://status.upstash.com/api/v2/incidents.json",
+      };
+    case "servicenow":
+      return {
+        status: "https://servicenow.statuspage.io/api/v2/status.json",
+        incidents: "https://servicenow.statuspage.io/api/v2/incidents.json",
+      };
+    case "expo-push":
+      return {
+        status: "https://status.expo.dev/api/v2/status.json",
+        incidents: "https://status.expo.dev/api/v2/incidents.json",
+      };
+    case "freshbooks-api":
+      return {
+        status: "https://status.freshbooks.com/api/v2/status.json",
+        incidents: "https://status.freshbooks.com/api/v2/incidents.json",
+      };
+    case "xero-api":
+      return {
+        status: "https://status.xero.com/api/v2/status.json",
+        incidents: "https://status.xero.com/api/v2/incidents.json",
+      };
     default:
       return null;
   }
@@ -1683,6 +2057,12 @@ const getAtomUrl = (service: any) => {
       return "https://status.cloud.google.com/en/feed.atom";
     case "deepgram":
       return "https://status.deepgram.com/history.atom";
+    case "heroku":
+      return "https://status.heroku.com/feed";
+    case "zuora":
+      return "https://trust.zuora.com/history.atom";
+    case "apigee-x":
+      return "https://status.cloud.google.com/en/feed.atom";
     default:
       return null;
   }

@@ -16,11 +16,21 @@ const NOTIFICATION_TRIGGER_SERVICES = new Set([
   "render",
   "anthropic",
   "vercel",
-  "cloudflare",
   "qdrant",
   "clerk",
   "slack",
   "inkeep",
+  "aws",
+  "oracle-cloud-infrastructure",
+  "stripe-checkout",
+  "mailgun",
+  "github",
+  "discord",
+  "planetscale",
+  "neon",
+  "clickhouse-cloud",
+  "telnyx",
+  "gitlab"
 ]);
 // Services with JSON status APIs only
 const services_json = [
@@ -153,6 +163,198 @@ const services_json = [
     api: "https://status.mailgun.com/api/v2/status.json",
     incident_api: "https://status.mailgun.com/api/v2/incidents.json",
   },
+  {
+    slug: "planetscale",
+    name: "PlanetScale",
+    api: "https://www.planetscalestatus.com/api/v2/status.json",
+    incident_api: "https://www.planetscalestatus.com/api/v2/incidents.json",
+  },
+  {
+    slug: "github",
+    name: "GitHub",
+    api: "https://www.githubstatus.com/api/v2/status.json",
+    incident_api: "https://www.githubstatus.com/api/v2/incidents.json",
+  },
+  {
+    slug: "discord",
+    name: "Discord",
+    api: "https://discordstatus.com/api/v2/status.json",
+    incident_api: "https://discordstatus.com/api/v2/incidents.json",
+  },
+  {
+    slug: "akamai",
+    name: "Akamai",
+    api: "https://www.akamaistatus.com/api/v2/status.json",
+    incident_api: "https://www.akamaistatus.com/api/v2/incidents.json",
+  },
+  {
+    slug: "quickbooks-online-api",
+    name: "QuickBooks Online API",
+    api: "https://status.developer.intuit.com/api/v2/status.json",
+    incident_api: "https://status.developer.intuit.com/api/v2/incidents.json",
+  },
+  {
+    slug: "grafana-cloud",
+    name: "Grafana Cloud",
+    api: "https://status.grafana.com/api/v2/status.json",
+    incident_api: "https://status.grafana.com/api/v2/incidents.json",
+  },
+  {
+    slug: "sparkpost",
+    name: "SparkPost",
+    api: "https://status.sparkpost.com/api/v2/status.json",
+    incident_api: "https://status.sparkpost.com/api/v2/incidents.json",
+  },
+  {
+    slug: "messagebird",
+    name: "MessageBird",
+    api: "https://status.bird.com/api/v2/status.json",
+    incident_api: "https://status.bird.com/api/v2/incidents.json",
+  },
+  {
+    slug: "vonage-nexmo",
+    name: "Vonage",
+    api: "https://vonageapi.statuspage.io/api/v2/status.json",
+    incident_api: "https://vonageapi.statuspage.io/api/v2/incidents.json",
+  },
+  {
+    slug: "cockroachdb-cloud",
+    name: "CockroachDB Cloud",
+    api: "https://status.cockroachlabs.cloud/api/v2/status.json",
+    incident_api: "https://status.cockroachlabs.cloud/api/v2/incidents.json",
+  },
+  {
+    slug: "clickhouse-cloud",
+    name: "ClickHouse Cloud",
+    api: "https://status.clickhouse.com/api/v2/status.json",
+    incident_api: "https://status.clickhouse.com/api/v2/incidents.json",
+  },
+  {
+    slug: "influxdb-cloud",
+    name: "InfluxDB Cloud",
+    api: "https://status.influxdata.com/api/v2/status.json",
+    incident_api: "https://status.influxdata.com/api/v2/incidents.json",
+  },
+  {
+    slug: "firebolt",
+    name: "Firebolt",
+    api: "https://status.firebolt.io/api/v2/status.json",
+    incident_api: "https://status.firebolt.io/api/v2/incidents.json",
+  },
+  {
+    slug: "victoriametrics-cloud",
+    name: "VictoriaMetrics Cloud",
+    api: "https://status.victoriametrics.com/api/v2/status.json",
+    incident_api: "https://status.victoriametrics.com/api/v2/incidents.json",
+  },
+  {
+    slug: "sinch",
+    name: "Sinch",
+    api: "https://status.sinch.com/api/v2/status.json",
+    incident_api: "https://status.sinch.com/api/v2/incidents.json",
+  },
+  {
+    slug: "plivo",
+    name: "Plivo",
+    api: "https://status.plivo.com/api/v2/status.json",
+    incident_api: "https://status.plivo.com/api/v2/incidents.json",
+  },
+  {
+    slug: "telnyx",
+    name: "Telnyx",
+    api: "https://status.telnyx.com/api/v2/status.json",
+    incident_api: "https://status.telnyx.com/api/v2/incidents.json",
+  },
+  {
+    slug: "bandwidth",
+    name: "Bandwidth",
+    api: "https://status.bandwidth.com/api/v2/status.json",
+    incident_api: "https://status.bandwidth.com/api/v2/incidents.json",
+  },
+  {
+    slug: "pusher-beams",
+    name: "Pusher",
+    api: "https://status.pusher.com/api/v2/status.json",
+    incident_api: "https://status.pusher.com/api/v2/incidents.json",
+  },
+  {
+    slug: "postman-api-hub",
+    name: "Postman",
+    api: "https://status.postman.com/api/v2/status.json",
+    incident_api: "https://status.postman.com/api/v2/incidents.json",
+  },
+  {
+    slug: "kong-gateway",
+    name: "Kong Gateway",
+    api: "https://status.konghq.com/api/v2/status.json",
+    incident_api: "https://status.konghq.com/api/v2/incidents.json",
+  },
+  {
+    slug: "tyk",
+    name: "Tyk",
+    api: "https://status.tyk.io/api/v2/status.json",
+    incident_api: "https://status.tyk.io/api/v2/incidents.json",
+  },
+  {
+    slug: "upstash",
+    name: "Upstash",
+    api: "https://status.upstash.com/api/v2/status.json",
+    incident_api: "https://status.upstash.com/api/v2/incidents.json",
+  },
+  {
+    slug: "servicenow",
+    name: "ServiceNow",
+    api: "https://servicenow.statuspage.io/api/v2/status.json",
+    incident_api: "https://servicenow.statuspage.io/api/v2/incidents.json",
+  },
+  {
+    slug: "expo-push",
+    name: "Expo",
+    api: "https://status.expo.dev/api/v2/status.json",
+    incident_api: "https://status.expo.dev/api/v2/incidents.json",
+  },
+  {
+    slug: "freshbooks-api",
+    name: "FreshBooks API",
+    api: "https://status.freshbooks.com/api/v2/status.json",
+    incident_api: "https://status.freshbooks.com/api/v2/incidents.json",
+  },
+  {
+    slug: "oracle-cloud-infrastructure",
+    name: "Oracle Cloud Infrastructure",
+    api: "https://ocistatus.oraclecloud.com/api/v2/status.json",
+    incident_api: "https://ocistatus.oraclecloud.com/api/v2/incidents.json"
+  },
+  {
+    slug: "stripe-checkout",
+    name: "Stripe Checkout",
+    api: "https://www.stripestatus.com/api/v2/status.json",
+    incident_api: "https://www.stripestatus.com/api/v2/incidents.json"
+  },
+  {
+    slug: "stripe-billing",
+    name: "Stripe Billing",
+    api: "https://www.stripestatus.com/api/v2/status.json",
+    incident_api: "https://www.stripestatus.com/api/v2/incidents.json"
+  },
+  {
+    slug: "stripe-invoicing",
+    name: "Stripe Invoicing",
+    api: "https://www.stripestatus.com/api/v2/status.json",
+    incident_api: "https://www.stripestatus.com/api/v2/incidents.json"
+  },
+  {
+    slug: "supabase-auth",
+    name: "Supabase Auth",
+    api: "https://status.supabase.com/api/v2/status.json",
+    incident_api: "https://status.supabase.com/api/v2/incidents.json"
+  },
+  {
+    slug: "xero-api",
+    name: "Xero API",
+    api: "https://status.xero.com/api/v2/status.json",
+    incident_api: "https://status.xero.com/api/v2/incidents.json"
+  }
 ];
 // Services that need RSS scraping
 const services_rss = [
@@ -231,6 +433,61 @@ const services_rss = [
     name: "Amazon Web Services",
     rss_url: "https://status.aws.amazon.com/rss/all.rss",
   },
+  {
+    slug: "neon",
+    name: "Neon",
+    rss_url: "https://neonstatus.com/pages/6878fc85709daa75be6c7e3c/rss",
+  },
+  {
+    slug: "gitlab",
+    name: "GitLab",
+    rss_url: "https://status.gitlab.com/pages/5b36dc6502d06804c08349f7/rss",
+  },
+  {
+    slug: "redpanda",
+    name: "Redpanda",
+    rss_url: "https://status.redpanda.com/history.rss",
+  },
+  {
+    slug: "onesignal",
+    name: "OneSignal",
+    rss_url: "https://status.onesignal.com/history.rss",
+  },
+  {
+    slug: "recurly",
+    name: "Recurly",
+    rss_url: "https://status.recurly.com/statuspage/recurly/subscribe/rss",
+  },
+  {
+    slug: "descope",
+    name: "Descope",
+    rss_url: "https://descopestatus.com/default/history.rss",
+  },
+  {
+    slug: "fireworks-ai",
+    name: "Fireworks AI",
+    rss_url: "https://status.fireworks.ai/feed.rss"
+  },
+  {
+    slug: "together-ai",
+    name: "Together AI",
+    rss_url: "https://status.together.ai/feed.rss"
+  },
+  {
+    slug: "paypal-checkout",
+    name: "PayPal",
+    rss_url: "https://status.paypal.com/feed/rss"
+  },
+  {
+    slug: "stytch",
+    name: "Stytch",
+    rss_url: "https://status.stytch.com/history.rss"
+  },
+  {
+    slug: "supertokens",
+    name: "SuperTokens",
+    rss_url: "https://supertokens.instatus.com/default/history.rss"
+  }
 ];
 // Services that need Atom feed scraping
 const services_atom = [
@@ -244,6 +501,26 @@ const services_atom = [
     name: "Deepgram",
     atom_url: "https://status.deepgram.com/history.atom",
   },
+  {
+    slug: "heroku",
+    name: "Heroku",
+    atom_url: "https://status.heroku.com/feed",
+  },
+  {
+    slug: "zuora",
+    name: "Zuora",
+    atom_url: "https://trust.zuora.com/history.atom",
+  },
+  {
+    slug: "firebase-auth",
+    name: "Firebase Auth",
+    atom_url: "https://status.firebase.google.com/feed.atom"
+  },
+  {
+    slug: "apigee-x",
+    name: "Google Apigee X",
+    atom_url: "https://status.cloud.google.com/en/feed.atom"
+  }
 ];
 // Services that use Better Stack APIs
 const services_better_stack = [
@@ -839,24 +1116,47 @@ async function parseBetterStackFeed(jsonUrl, rssUrl) {
     const aggregateState = data?.data?.attributes?.aggregate_state || "unknown";
     const status = normalizeBetterStackStatus(aggregateState);
 
-    // Try to get latest incident from RSS feed as fallback
+    // Try to get latest incident from RSS feed
     let lastIncident = null;
+    let lastIncidentDetails = null;
     if (rssUrl) {
       try {
         const rssResponse = await fetch(rssUrl);
         if (rssResponse.ok) {
           const rssText = await rssResponse.text();
-          // Simple RSS parsing to get the latest item
-          const itemMatch = rssText.match(/<item>(.*?)<\/item>/s);
+
+          // Parse RSS to get the latest item
+          const itemRegex = /<item>([\s\S]*?)<\/item>/;
+          const itemMatch = rssText.match(itemRegex);
+
           if (itemMatch) {
-            const titleMatch = itemMatch[1].match(/<title>(.*?)<\/title>/);
-            const dateMatch = itemMatch[1].match(/<pubDate>(.*?)<\/pubDate>/);
+            const item = itemMatch[1];
+            const titleMatch = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) ||
+                              item.match(/<title>(.*?)<\/title>/);
+            const dateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/);
+            const descMatch = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/) ||
+                              item.match(/<description>(.*?)<\/description>/);
 
             if (titleMatch && dateMatch) {
-              lastIncident = {
-                title: titleMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/, '$1'),
-                created_at: new Date(dateMatch[1]).toISOString(),
-              };
+              const title = titleMatch[1];
+              const description = descMatch ? descMatch[1] : "";
+              const incidentDate = new Date(dateMatch[1]);
+
+              // Check if incident is within 24 hours
+              const timeDiff = new Date().getTime() - incidentDate.getTime();
+              const hoursDiff = timeDiff / (1000 * 60 * 60);
+
+              if (hoursDiff <= 24) {
+                lastIncident = incidentDate;
+                lastIncidentDetails = {
+                  title: title,
+                  description: stripHtml(description),
+                  status: determineIncidentStatus(description),
+                  createdAt: dateMatch[1],
+                  updatedAt: dateMatch[1],
+                  components: extractComponentsFromText(description)
+                };
+              }
             }
           }
         }
@@ -865,10 +1165,10 @@ async function parseBetterStackFeed(jsonUrl, rssUrl) {
       }
     }
 
-    return { status, lastIncident };
+    return { status, lastIncident, lastIncidentDetails };
   } catch (error) {
     console.error(`Error parsing Better Stack feed ${jsonUrl}:`, error);
-    return { status: "unknown", lastIncident: null };
+    return { status: "unknown", lastIncident: null, lastIncidentDetails: null };
   }
 }
 
@@ -917,95 +1217,157 @@ Deno.serve(async (_req) => {
   // Get current statuses before updating
   const currentStatuses = await getCurrentStatuses();
   const statusChanges = [];
+  let successCount = 0;
+  let failureCount = 0;
   // Process JSON services
   for (const service of services_json) {
-    const status = await fetchStatusFromAPI(service.api);
-    const incidentData = await fetchLatestIncident(service.incident_api);
-    // Check for status change
-    const oldStatus = currentStatuses.get(service.slug);
-    if (oldStatus && oldStatus !== status) {
-      statusChanges.push({
+    try {
+      console.log(`Processing JSON service: ${service.slug}`);
+      const status = await fetchStatusFromAPI(service.api);
+      const incidentData = await fetchLatestIncident(service.incident_api);
+      // Check for status change
+      const oldStatus = currentStatuses.get(service.slug);
+      if (oldStatus && oldStatus !== status) {
+        statusChanges.push({
+          service_slug: service.slug,
+          service_name: service.name,
+          old_status: oldStatus,
+          new_status: status,
+        });
+      }
+      const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
-        service_name: service.name,
-        old_status: oldStatus,
-        new_status: status,
+        status,
+        last_incident: incidentData.timestamp,
+        last_incident_details: incidentData.details || null,
+        updated_at: new Date(),
       });
+      if (response?.error) {
+        console.error(`Database error for ${service.slug}:`, response.error);
+        failureCount++;
+      } else {
+        console.log(`✅ Successfully processed ${service.slug}: ${status}`);
+        successCount++;
+      }
+    } catch (error) {
+      console.error(`❌ Failed to process JSON service ${service.slug}:`, error);
+      failureCount++;
+      // Continue processing other services
     }
-    await supabase.from("service_status").upsert({
-      service_slug: service.slug,
-      status,
-      last_incident: incidentData.timestamp,
-      last_incident_details: incidentData.details || null,
-      updated_at: new Date(),
-    });
   }
   // Process RSS feed services
   for (const service of services_rss) {
-    const { status, lastIncident, lastIncidentDetails } = await parseRSSFeed(service.rss_url);
-    // Check for status change
-    const oldStatus = currentStatuses.get(service.slug);
-    if (oldStatus && oldStatus !== status) {
-      statusChanges.push({
+    try {
+      console.log(`Processing RSS service: ${service.slug}`);
+      const { status, lastIncident, lastIncidentDetails } = await parseRSSFeed(service.rss_url);
+      // Check for status change
+      const oldStatus = currentStatuses.get(service.slug);
+      if (oldStatus && oldStatus !== status) {
+        statusChanges.push({
+          service_slug: service.slug,
+          service_name: service.name,
+          old_status: oldStatus,
+          new_status: status,
+        });
+      }
+      const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
-        service_name: service.name,
-        old_status: oldStatus,
-        new_status: status,
+        status,
+        last_incident: lastIncident,
+        last_incident_details: lastIncidentDetails || null,
+        updated_at: new Date(),
       });
+      if (response?.error) {
+        console.error(`Database error for ${service.slug}:`, response.error);
+        failureCount++;
+      } else {
+        console.log(`✅ Successfully processed ${service.slug}: ${status}`);
+        successCount++;
+      }
+    } catch (error) {
+      console.error(`❌ Failed to process RSS service ${service.slug}:`, error);
+      failureCount++;
+      // Continue processing other services
     }
-    await supabase.from("service_status").upsert({
-      service_slug: service.slug,
-      status,
-      last_incident: lastIncident,
-      last_incident_details: lastIncidentDetails || null,
-      updated_at: new Date(),
-    });
   }
   // Process Atom feed services
   for (const service of services_atom) {
-    const { status, lastIncident, lastIncidentDetails } = await parseAtomFeed(service.atom_url);
-    // Check for status change
-    const oldStatus = currentStatuses.get(service.slug);
-    if (oldStatus && oldStatus !== status) {
-      statusChanges.push({
+    try {
+      console.log(`Processing Atom service: ${service.slug}`);
+      const { status, lastIncident, lastIncidentDetails } = await parseAtomFeed(service.atom_url);
+      // Check for status change
+      const oldStatus = currentStatuses.get(service.slug);
+      if (oldStatus && oldStatus !== status) {
+        statusChanges.push({
+          service_slug: service.slug,
+          service_name: service.name,
+          old_status: oldStatus,
+          new_status: status,
+        });
+      }
+      const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
-        service_name: service.name,
-        old_status: oldStatus,
-        new_status: status,
+        status,
+        last_incident: lastIncident,
+        last_incident_details: lastIncidentDetails || null,
+        updated_at: new Date(),
       });
+      if (response?.error) {
+        console.error(`Database error for ${service.slug}:`, response.error);
+        failureCount++;
+      } else {
+        console.log(`✅ Successfully processed ${service.slug}: ${status}`);
+        successCount++;
+      }
+    } catch (error) {
+      console.error(`❌ Failed to process Atom service ${service.slug}:`, error);
+      failureCount++;
+      // Continue processing other services
     }
-    await supabase.from("service_status").upsert({
-      service_slug: service.slug,
-      status,
-      last_incident: lastIncident,
-      last_incident_details: lastIncidentDetails || null,
-      updated_at: new Date(),
-    });
   }
   // Process Better Stack services
   for (const service of services_better_stack) {
-    const { status, lastIncident } = await parseBetterStackFeed(service.json_url, service.rss_url);
-    // Check for status change
-    const oldStatus = currentStatuses.get(service.slug);
-    if (oldStatus && oldStatus !== status) {
-      statusChanges.push({
+    try {
+      console.log(`Processing Better Stack service: ${service.slug}`);
+      const { status, lastIncident, lastIncidentDetails } = await parseBetterStackFeed(service.json_url, service.rss_url);
+      // Check for status change
+      const oldStatus = currentStatuses.get(service.slug);
+      if (oldStatus && oldStatus !== status) {
+        statusChanges.push({
+          service_slug: service.slug,
+          service_name: service.name,
+          old_status: oldStatus,
+          new_status: status,
+        });
+      }
+      const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
-        service_name: service.name,
-        old_status: oldStatus,
-        new_status: status,
+        status,
+        last_incident: lastIncident,
+        last_incident_details: lastIncidentDetails || null,
+        updated_at: new Date(),
       });
+      if (response?.error) {
+        console.error(`Database error for ${service.slug}:`, response.error);
+        failureCount++;
+      } else {
+        console.log(`✅ Successfully processed ${service.slug}: ${status}`);
+        successCount++;
+      }
+    } catch (error) {
+      console.error(`❌ Failed to process Better Stack service ${service.slug}:`, error);
+      failureCount++;
+      // Continue processing other services
     }
-    await supabase.from("service_status").upsert({
-      service_slug: service.slug,
-      status,
-      last_incident: lastIncident,
-      updated_at: new Date(),
-    });
+  }
+  // Create a function to generate detailed subject
+  function generateDetailedSubject(priorityChanges) {
+    const changesSummary = priorityChanges.map((change) => `${change.service_name}:${change.new_status}`).join(', ');
+    return `High-Priority Service Alert: ${changesSummary}`;
   }
   // Only send notification if high-priority services changed
   if (statusChanges.length > 0 && shouldSendNotification(statusChanges)) {
-    console.log(
-      `Found ${statusChanges.length} status changes, including high-priority services`
-    );
+    console.log(`Found ${statusChanges.length} status changes, including high-priority services`);
     // Get current incident services after updates
     const incidentServices = await getIncidentServices();
     // Filter to only show high-priority changes in the email
@@ -1013,24 +1375,30 @@ Deno.serve(async (_req) => {
       NOTIFICATION_TRIGGER_SERVICES.has(change.service_slug)
     );
     // Format and send email
-    const subject = `High-Priority Service Alert: ${
-      priorityChanges.length
-    } Critical Service${priorityChanges.length > 1 ? "s" : ""} Updated`;
-    const message = formatStatusChangeMessage(
-      priorityChanges,
-      incidentServices
-    );
+    const subject = generateDetailedSubject(priorityChanges);
+    const message = formatStatusChangeMessage(priorityChanges, incidentServices);
     await sendEmailNotification(subject, message);
   } else if (statusChanges.length > 0) {
-    console.log(
-      `Found ${statusChanges.length} status changes, but none are high-priority services`
-    );
+    console.log(`Found ${statusChanges.length} status changes, but none are high-priority services`);
   } else {
     console.log("No status changes detected");
   }
+
+  // Log final summary
+  const totalServices = successCount + failureCount;
+  const successRate = totalServices > 0 ? Math.round((successCount / totalServices) * 100) : 0;
+  console.log(`\n🎯 Processing Summary:`);
+  console.log(`✅ Successfully processed: ${successCount} services`);
+  console.log(`❌ Failed to process: ${failureCount} services`);
+  console.log(`📊 Success rate: ${successRate}%`);
+
   return new Response(
     JSON.stringify({
       success: true,
+      totalServices: totalServices,
+      successfulServices: successCount,
+      failedServices: failureCount,
+      successRate: successRate,
       totalChanges: statusChanges.length,
       priorityChanges: statusChanges.filter((change) =>
         NOTIFICATION_TRIGGER_SERVICES.has(change.service_slug)
