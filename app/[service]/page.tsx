@@ -20,6 +20,7 @@ import {
   ArrowLeft,
   AlertCircle,
   CheckCircle,
+  Github,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -1705,7 +1706,7 @@ export default async function ServiceStatusPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b">
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -1718,18 +1719,47 @@ export default async function ServiceStatusPage({ params }: PageProps) {
                 Back to Dashboard
               </Link>
               <div className="flex items-center gap-3">
-                <img
-                  src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/drdroid-logo.svg`}
-                  alt="DrDroid Logo"
-                  width={100}
-                  height={100}
-                  className="object-contain"
-                />
+                <Link
+                  href="https://www.drdroid.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:opacity-80 transition-opacity"
+                >
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/drdroid-logo.svg`}
+                    alt="DrDroid Logo"
+                    width={100}
+                    height={100}
+                    className="object-contain"
+                  />
+                </Link>
+                <h1 className="text-xl font-semibold text-primary tracking-tight">Debug Production At Machine Speed</h1>
               </div>
             </div>
-            <Badge variant="outline" className="text-xs">
-              Status Checker
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="text-xs">
+                Status Checker
+              </Badge>
+              <div className="relative">
+                {/* Sparkle animations */}
+                <div className="absolute -top-1 -left-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping opacity-75"></div>
+                <div className="absolute -top-2 -right-1 w-2 h-2 bg-blue-400 rounded-full animate-pulse delay-150"></div>
+                <div className="absolute -bottom-1 -left-2 w-2 h-2 bg-purple-400 rounded-full animate-bounce delay-300"></div>
+                <div className="absolute -bottom-2 -right-2 w-3 h-3 bg-pink-400 rounded-full animate-ping delay-500"></div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="relative bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 hover:border-blue-400 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                  <Link
+                    href="https://github.com/DrDroidLab/status-page-aggregator"
+                    className="flex items-center gap-2 font-semibold text-blue-700 hover:text-blue-800">
+                    <Github className="w-4 h-4" />⭐ Star on GitHub
+                  </Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
