@@ -8,6 +8,15 @@ const supabaseServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 // Email API endpoint
 const EMAIL_API_URL = "<you-email-where-you-want-to-receive-the-notification>";
+
+// Logging configuration
+const LOG_LEVEL = Deno.env.get("LOG_LEVEL") || "ERRORS_ONLY"; // OPTIONS: "VERBOSE", "SUMMARY", "ERRORS_ONLY"
+
+function log(message: string, level: "VERBOSE" | "SUMMARY" | "ERROR" = "VERBOSE") {
+  if (LOG_LEVEL === "ERRORS_ONLY" && level !== "ERROR") return;
+  if (LOG_LEVEL === "SUMMARY" && level === "VERBOSE") return;
+  console.log(message);
+}
 // High-priority services that trigger notifications when they change
 const NOTIFICATION_TRIGGER_SERVICES = new Set([
   "openai",
@@ -551,14 +560,12 @@ async function sendEmailNotification(subject, message) {
       }),
     });
     if (!response.ok) {
-      console.error(
-        `Failed to send email: ${response.status} ${response.statusText}`
-      );
+      log(`Failed to send email: ${response.status} ${response.statusText}`, "ERROR");
     } else {
-      console.log("Email notification sent successfully");
+      log("Email notification sent successfully", "SUMMARY");
     }
   } catch (error) {
-    console.error("Error sending email notification:", error);
+    log(`Error sending email notification: ${error}`, "ERROR");
   }
 }
 // Get current statuses from database
@@ -567,7 +574,7 @@ async function getCurrentStatuses() {
     .from("service_status")
     .select("service_slug, status");
   if (error) {
-    console.error("Error fetching current statuses:", error);
+    log(`Error fetching current statuses: ${error}`, "ERROR");
     return new Map();
   }
   const statusMap = new Map();
@@ -583,7 +590,7 @@ async function getIncidentServices() {
     .select("service_slug")
     .eq("status", "incident");
   if (error) {
-    console.error("Error fetching incident services:", error);
+    log(`Error fetching incident services: ${error}`, "ERROR");
     return [];
   }
   return (
@@ -1167,7 +1174,7 @@ async function parseBetterStackFeed(jsonUrl, rssUrl) {
 
     return { status, lastIncident, lastIncidentDetails };
   } catch (error) {
-    console.error(`Error parsing Better Stack feed ${jsonUrl}:`, error);
+    log(`Error parsing Better Stack feed ${jsonUrl}: ${error}`, "ERROR");
     return { status: "unknown", lastIncident: null, lastIncidentDetails: null };
   }
 }
@@ -1213,7 +1220,7 @@ async function fetchStatusFromAPI(apiUrl) {
 }
 // Main function
 Deno.serve(async (_req) => {
-  console.log("Starting status update job...");
+  log("Starting status update job...", "SUMMARY");
   // Get current statuses before updating
   const currentStatuses = await getCurrentStatuses();
   const statusChanges = [];
@@ -1222,7 +1229,7 @@ Deno.serve(async (_req) => {
   // Process JSON services
   for (const service of services_json) {
     try {
-      console.log(`Processing JSON service: ${service.slug}`);
+      log(`Processing JSON service: ${service.slug}`, "VERBOSE");
       const status = await fetchStatusFromAPI(service.api);
       const incidentData = await fetchLatestIncident(service.incident_api);
       // Check for status change
@@ -1243,14 +1250,14 @@ Deno.serve(async (_req) => {
         updated_at: new Date(),
       });
       if (response?.error) {
-        console.error(`Database error for ${service.slug}:`, response.error);
+        log(`❌ Database error for ${service.slug}: ${response.error}`, "ERROR");
         failureCount++;
       } else {
-        console.log(`✅ Successfully processed ${service.slug}: ${status}`);
+        log(`✅ Successfully processed ${service.slug}: ${status}`, "VERBOSE");
         successCount++;
       }
     } catch (error) {
-      console.error(`❌ Failed to process JSON service ${service.slug}:`, error);
+      log(`❌ Failed to process JSON service ${service.slug}: ${error}`, "ERROR");
       failureCount++;
       // Continue processing other services
     }
@@ -1258,7 +1265,7 @@ Deno.serve(async (_req) => {
   // Process RSS feed services
   for (const service of services_rss) {
     try {
-      console.log(`Processing RSS service: ${service.slug}`);
+      log(`Processing RSS service: ${service.slug}`, "VERBOSE");
       const { status, lastIncident, lastIncidentDetails } = await parseRSSFeed(service.rss_url);
       // Check for status change
       const oldStatus = currentStatuses.get(service.slug);
@@ -1278,14 +1285,14 @@ Deno.serve(async (_req) => {
         updated_at: new Date(),
       });
       if (response?.error) {
-        console.error(`Database error for ${service.slug}:`, response.error);
+        log(`❌ Database error for ${service.slug}: ${response.error}`, "ERROR");
         failureCount++;
       } else {
-        console.log(`✅ Successfully processed ${service.slug}: ${status}`);
+        log(`✅ Successfully processed ${service.slug}: ${status}`, "VERBOSE");
         successCount++;
       }
     } catch (error) {
-      console.error(`❌ Failed to process RSS service ${service.slug}:`, error);
+      log(`❌ Failed to process RSS service ${service.slug}: ${error}`, "ERROR");
       failureCount++;
       // Continue processing other services
     }
@@ -1293,7 +1300,7 @@ Deno.serve(async (_req) => {
   // Process Atom feed services
   for (const service of services_atom) {
     try {
-      console.log(`Processing Atom service: ${service.slug}`);
+      log(`Processing Atom service: ${service.slug}`, "VERBOSE");
       const { status, lastIncident, lastIncidentDetails } = await parseAtomFeed(service.atom_url);
       // Check for status change
       const oldStatus = currentStatuses.get(service.slug);
@@ -1313,14 +1320,14 @@ Deno.serve(async (_req) => {
         updated_at: new Date(),
       });
       if (response?.error) {
-        console.error(`Database error for ${service.slug}:`, response.error);
+        log(`❌ Database error for ${service.slug}: ${response.error}`, "ERROR");
         failureCount++;
       } else {
-        console.log(`✅ Successfully processed ${service.slug}: ${status}`);
+        log(`✅ Successfully processed ${service.slug}: ${status}`, "VERBOSE");
         successCount++;
       }
     } catch (error) {
-      console.error(`❌ Failed to process Atom service ${service.slug}:`, error);
+      log(`❌ Failed to process Atom service ${service.slug}: ${error}`, "ERROR");
       failureCount++;
       // Continue processing other services
     }
@@ -1328,7 +1335,7 @@ Deno.serve(async (_req) => {
   // Process Better Stack services
   for (const service of services_better_stack) {
     try {
-      console.log(`Processing Better Stack service: ${service.slug}`);
+      log(`Processing Better Stack service: ${service.slug}`, "VERBOSE");
       const { status, lastIncident, lastIncidentDetails } = await parseBetterStackFeed(service.json_url, service.rss_url);
       // Check for status change
       const oldStatus = currentStatuses.get(service.slug);
@@ -1348,14 +1355,14 @@ Deno.serve(async (_req) => {
         updated_at: new Date(),
       });
       if (response?.error) {
-        console.error(`Database error for ${service.slug}:`, response.error);
+        log(`❌ Database error for ${service.slug}: ${response.error}`, "ERROR");
         failureCount++;
       } else {
-        console.log(`✅ Successfully processed ${service.slug}: ${status}`);
+        log(`✅ Successfully processed ${service.slug}: ${status}`, "VERBOSE");
         successCount++;
       }
     } catch (error) {
-      console.error(`❌ Failed to process Better Stack service ${service.slug}:`, error);
+      log(`❌ Failed to process Better Stack service ${service.slug}: ${error}`, "ERROR");
       failureCount++;
       // Continue processing other services
     }
@@ -1367,7 +1374,7 @@ Deno.serve(async (_req) => {
   }
   // Only send notification if high-priority services changed
   if (statusChanges.length > 0 && shouldSendNotification(statusChanges)) {
-    console.log(`Found ${statusChanges.length} status changes, including high-priority services`);
+    log(`Found ${statusChanges.length} status changes, including high-priority services`, "SUMMARY");
     // Get current incident services after updates
     const incidentServices = await getIncidentServices();
     // Filter to only show high-priority changes in the email
@@ -1379,18 +1386,18 @@ Deno.serve(async (_req) => {
     const message = formatStatusChangeMessage(priorityChanges, incidentServices);
     await sendEmailNotification(subject, message);
   } else if (statusChanges.length > 0) {
-    console.log(`Found ${statusChanges.length} status changes, but none are high-priority services`);
+    log(`Found ${statusChanges.length} status changes, but none are high-priority services`, "SUMMARY");
   } else {
-    console.log("No status changes detected");
+    log("No status changes detected", "SUMMARY");
   }
 
   // Log final summary
   const totalServices = successCount + failureCount;
   const successRate = totalServices > 0 ? Math.round((successCount / totalServices) * 100) : 0;
-  console.log(`\n🎯 Processing Summary:`);
-  console.log(`✅ Successfully processed: ${successCount} services`);
-  console.log(`❌ Failed to process: ${failureCount} services`);
-  console.log(`📊 Success rate: ${successRate}%`);
+  log(`\n🎯 Processing Summary:`, "SUMMARY");
+  log(`✅ Successfully processed: ${successCount} services`, "SUMMARY");
+  log(`❌ Failed to process: ${failureCount} services`, "SUMMARY");
+  log(`📊 Success rate: ${successRate}%`, "SUMMARY");
 
   return new Response(
     JSON.stringify({
