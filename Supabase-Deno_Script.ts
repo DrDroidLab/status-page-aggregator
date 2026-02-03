@@ -357,14 +357,14 @@ function normalizeStatus(text) {
 }
 // Fetch latest incident from incident API
 async function fetchLatestIncident(incidentApiUrl) {
-  if (!incidentApiUrl) return null;
+  if (!incidentApiUrl) return { timestamp: null, details: null };
   try {
     const res = await fetch(incidentApiUrl);
     if (!res.ok) throw new Error(`Failed to fetch ${incidentApiUrl}`);
     const json = await res.json();
     const incidents = json?.incidents || [];
     if (incidents.length === 0) {
-      return null;
+      return { timestamp: null, details: null };
     }
     // Find the most recent incident by created_at or updated_at
     let latestIncident = null;
@@ -387,14 +387,110 @@ async function fetchLatestIncident(incidentApiUrl) {
         }
       }
     }
-    return latestDate;
+
+    if (!latestIncident) {
+      return { timestamp: null, details: null };
+    }
+
+    // Extract detailed incident information
+    const latestUpdate = latestIncident.incident_updates?.[0];
+    const description = latestUpdate?.body || latestIncident.body || "";
+    const components = latestIncident.components?.map((comp) => comp.name) ||
+                     latestUpdate?.affected_components?.map((comp) => comp.name) || [];
+
+    const incidentDetails = {
+      title: latestIncident.name || latestIncident.title || "Unknown Incident",
+      description: stripHtml(description),
+      status: mapAPIStatusToIncidentStatus(latestIncident.status),
+      createdAt: latestIncident.created_at || latestIncident.started_at,
+      updatedAt: latestIncident.updated_at || latestIncident.created_at,
+      components: components,
+    };
+
+    return {
+      timestamp: latestDate,
+      details: incidentDetails,
+    };
   } catch (e) {
     console.warn(
       `Failed to fetch incidents from ${incidentApiUrl}: ${e.message}`
     );
-    return null;
+    return { timestamp: null, details: null };
   }
 }
+
+// Helper function to strip HTML tags
+function stripHtml(html) {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/&nbsp;/g, " ") // Replace &nbsp; with space
+    .replace(/&amp;#39;/g, "'") // Replace &amp;#39; with '
+    .replace(/&amp;/g, "&") // Replace &amp; with &
+    .replace(/&lt;/g, "<") // Replace &lt; with <
+    .replace(/&gt;/g, ">") // Replace &gt; with >
+    .replace(/&quot;/g, '"') // Replace &quot; with "
+    .replace(/&#39;/g, "'") // Replace &#39; with '
+    .replace(/&apos;/g, "'") // Replace &apos; with '
+    .replace(/\n\s*\n/g, "\n") // Remove multiple newlines
+    .trim();
+}
+
+// Helper function to map API status to incident status
+function mapAPIStatusToIncidentStatus(status) {
+  switch (status?.toLowerCase()) {
+    case "resolved":
+      return "resolved";
+    case "monitoring":
+      return "monitoring";
+    case "identified":
+      return "identified";
+    case "investigating":
+    default:
+      return "investigating";
+  }
+}
+
+// Extract components from description text (basic approach)
+function extractComponentsFromText(text) {
+  if (!text) return [];
+
+  // Look for common component patterns in incident descriptions
+  const componentPatterns = [
+    /API/gi,
+    /DNS/gi,
+    /CDN/gi,
+    /Database/gi,
+    /Web Interface/gi,
+    /Dashboard/gi,
+    /Authentication/gi,
+    /Storage/gi,
+    /Compute/gi,
+    /Networking/gi,
+  ];
+
+  const components = [];
+  for (const pattern of componentPatterns) {
+    if (pattern.test(text)) {
+      const match = text.match(pattern);
+      if (match) {
+        components.push(match[0]);
+      }
+    }
+  }
+
+  return [...new Set(components)]; // Remove duplicates
+}
+
+// Determine incident status from content
+function determineIncidentStatus(content) {
+  const lowerContent = content.toLowerCase();
+  if (lowerContent.includes("resolved")) return "resolved";
+  if (lowerContent.includes("monitoring")) return "monitoring";
+  if (lowerContent.includes("identified")) return "identified";
+  return "investigating";
+}
+
 // Parse RSS feed and extract latest incident info
 async function parseRSSFeed(rssUrl) {
   try {
@@ -409,6 +505,7 @@ async function parseRSSFeed(rssUrl) {
       return {
         status: "operational",
         lastIncident: null,
+        lastIncidentDetails: null,
       };
     }
     // Parse all items and sort by date (newest first)
@@ -445,6 +542,7 @@ async function parseRSSFeed(rssUrl) {
       return {
         status: "operational",
         lastIncident: null,
+        lastIncidentDetails: null,
       };
     }
     // Extract title from the valid item
@@ -472,6 +570,7 @@ async function parseRSSFeed(rssUrl) {
       return {
         status: "operational",
         lastIncident: validItem.date,
+        lastIncidentDetails: null,
       };
     }
     // Within 24 hours - determine actual status
@@ -520,15 +619,33 @@ async function parseRSSFeed(rssUrl) {
     ) {
       status = "operational";
     }
+    // Extract components from description (basic approach)
+    const components = extractComponentsFromText(description);
+
+    // Determine incident status based on content
+    const incidentStatus = determineIncidentStatus(content);
+
+    // Create detailed incident object
+    const incidentDetails = {
+      title: title,
+      description: stripHtml(description),
+      status: incidentStatus,
+      createdAt: validItem.dateStr,
+      updatedAt: validItem.dateStr,
+      components: components,
+    };
+
     return {
       status,
       lastIncident: validItem.date,
+      lastIncidentDetails: incidentDetails,
     };
   } catch (error) {
     console.warn(`Failed to parse RSS feed ${rssUrl}: ${error.message}`);
     return {
       status: "unknown",
       lastIncident: null,
+      lastIncidentDetails: null,
     };
   }
 }
@@ -546,6 +663,7 @@ async function parseAtomFeed(atomUrl) {
       return {
         status: "operational",
         lastIncident: null,
+        lastIncidentDetails: null,
       };
     }
     // Parse all entries and sort by date (newest first)
@@ -582,6 +700,7 @@ async function parseAtomFeed(atomUrl) {
       return {
         status: "operational",
         lastIncident: null,
+        lastIncidentDetails: null,
       };
     }
     // Extract title from the valid entry
@@ -605,6 +724,7 @@ async function parseAtomFeed(atomUrl) {
       return {
         status: "operational",
         lastIncident: validEntry.date,
+        lastIncidentDetails: null,
       };
     }
     // Within 24 hours - determine actual status
@@ -653,15 +773,33 @@ async function parseAtomFeed(atomUrl) {
     ) {
       status = "operational";
     }
+    // Extract components from summary (basic approach)
+    const components = extractComponentsFromText(summary);
+
+    // Determine incident status based on content
+    const incidentStatus = determineIncidentStatus(content);
+
+    // Create detailed incident object
+    const incidentDetails = {
+      title: title,
+      description: stripHtml(summary),
+      status: incidentStatus,
+      createdAt: validEntry.dateStr,
+      updatedAt: validEntry.dateStr,
+      components: components,
+    };
+
     return {
       status,
       lastIncident: validEntry.date,
+      lastIncidentDetails: incidentDetails,
     };
   } catch (error) {
     console.warn(`Failed to parse Atom feed ${atomUrl}: ${error.message}`);
     return {
       status: "unknown",
       lastIncident: null,
+      lastIncidentDetails: null,
     };
   }
 }
@@ -689,7 +827,7 @@ Deno.serve(async (_req) => {
   // Process JSON services
   for (const service of services_json) {
     const status = await fetchStatusFromAPI(service.api);
-    const lastIncident = await fetchLatestIncident(service.incident_api);
+    const incidentData = await fetchLatestIncident(service.incident_api);
     // Check for status change
     const oldStatus = currentStatuses.get(service.slug);
     if (oldStatus && oldStatus !== status) {
@@ -703,13 +841,14 @@ Deno.serve(async (_req) => {
     await supabase.from("service_status").upsert({
       service_slug: service.slug,
       status,
-      last_incident: lastIncident,
+      last_incident: incidentData.timestamp,
+      last_incident_details: incidentData.details || null,
       updated_at: new Date(),
     });
   }
   // Process RSS feed services
   for (const service of services_rss) {
-    const { status, lastIncident } = await parseRSSFeed(service.rss_url);
+    const { status, lastIncident, lastIncidentDetails } = await parseRSSFeed(service.rss_url);
     // Check for status change
     const oldStatus = currentStatuses.get(service.slug);
     if (oldStatus && oldStatus !== status) {
@@ -724,12 +863,13 @@ Deno.serve(async (_req) => {
       service_slug: service.slug,
       status,
       last_incident: lastIncident,
+      last_incident_details: lastIncidentDetails || null,
       updated_at: new Date(),
     });
   }
   // Process Atom feed services
   for (const service of services_atom) {
-    const { status, lastIncident } = await parseAtomFeed(service.atom_url);
+    const { status, lastIncident, lastIncidentDetails } = await parseAtomFeed(service.atom_url);
     // Check for status change
     const oldStatus = currentStatuses.get(service.slug);
     if (oldStatus && oldStatus !== status) {
@@ -744,6 +884,7 @@ Deno.serve(async (_req) => {
       service_slug: service.slug,
       status,
       last_incident: lastIncident,
+      last_incident_details: lastIncidentDetails || null,
       updated_at: new Date(),
     });
   }

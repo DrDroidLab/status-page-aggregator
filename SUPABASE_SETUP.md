@@ -48,6 +48,7 @@ CREATE TABLE service_status (
   service_slug TEXT PRIMARY KEY,
   status TEXT NOT NULL CHECK (status IN ('operational', 'degraded', 'incident', 'maintenance', 'unknown')),
   last_incident TIMESTAMPTZ,
+  last_incident_details JSONB,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -66,6 +67,7 @@ COMMENT ON TABLE service_status IS 'Stores current status of monitored services'
 COMMENT ON COLUMN service_status.service_slug IS 'Unique identifier for each service (e.g., "openai", "aws")';
 COMMENT ON COLUMN service_status.status IS 'Current operational status of the service';
 COMMENT ON COLUMN service_status.last_incident IS 'Timestamp of most recent incident';
+COMMENT ON COLUMN service_status.last_incident_details IS 'JSON object with detailed incident information (title, description, status, components)';
 COMMENT ON COLUMN service_status.updated_at IS 'Last time status was checked/updated';
 ```
 
@@ -108,6 +110,23 @@ INSERT INTO service_status (service_slug, status) VALUES
 SELECT * FROM service_status;
 DELETE FROM service_status WHERE service_slug IN ('test-service', 'sample-api');
 ```
+
+### Migrating Existing Database
+
+If you already have a `service_status` table from an earlier version, run this migration:
+
+```sql
+-- Add the new column for detailed incident information
+ALTER TABLE service_status ADD COLUMN last_incident_details JSONB;
+
+-- Add comment for the new column
+COMMENT ON COLUMN service_status.last_incident_details IS 'JSON object with detailed incident information (title, description, status, components)';
+
+-- Verify migration
+\d service_status
+```
+
+**Note**: After running the migration, redeploy your Deno Edge Function to start populating the new column with detailed incident data.
 
 ## 🔧 3. Get Supabase Credentials
 
