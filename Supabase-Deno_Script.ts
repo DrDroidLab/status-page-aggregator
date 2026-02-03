@@ -20,6 +20,7 @@ const NOTIFICATION_TRIGGER_SERVICES = new Set([
   "qdrant",
   "clerk",
   "slack",
+  "inkeep",
 ]);
 // Services with JSON status APIs only
 const services_json = [
@@ -233,11 +234,21 @@ const services_atom = [
     atom_url: "https://status.deepgram.com/history.atom",
   },
 ];
+// Services that use Better Stack APIs
+const services_better_stack = [
+  {
+    slug: "inkeep",
+    name: "Inkeep",
+    json_url: "https://status.inkeep.com/index.json",
+    rss_url: "https://status.inkeep.com/feed",
+  },
+];
 // Create a map for service name lookup
 const serviceNameMap = new Map();
 services_json.forEach((s) => serviceNameMap.set(s.slug, s.name));
 services_rss.forEach((s) => serviceNameMap.set(s.slug, s.name));
 services_atom.forEach((s) => serviceNameMap.set(s.slug, s.name));
+services_better_stack.forEach((s) => serviceNameMap.set(s.slug, s.name));
 // Send email notification
 async function sendEmailNotification(subject, message) {
   try {
@@ -803,6 +814,77 @@ async function parseAtomFeed(atomUrl) {
     };
   }
 }
+// Parse Better Stack feed and extract status info
+async function parseBetterStackFeed(jsonUrl, rssUrl) {
+  try {
+    // Fetch Better Stack JSON API
+    const response = await fetch(jsonUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch Better Stack API: ${response.status}`);
+    }
+    const data = await response.json();
+
+    // Parse overall status from aggregate_state
+    const aggregateState = data?.data?.attributes?.aggregate_state || "unknown";
+    const status = normalizeBetterStackStatus(aggregateState);
+
+    // Try to get latest incident from RSS feed as fallback
+    let lastIncident = null;
+    if (rssUrl) {
+      try {
+        const rssResponse = await fetch(rssUrl);
+        if (rssResponse.ok) {
+          const rssText = await rssResponse.text();
+          // Simple RSS parsing to get the latest item
+          const itemMatch = rssText.match(/<item>(.*?)<\/item>/s);
+          if (itemMatch) {
+            const titleMatch = itemMatch[1].match(/<title>(.*?)<\/title>/);
+            const dateMatch = itemMatch[1].match(/<pubDate>(.*?)<\/pubDate>/);
+
+            if (titleMatch && dateMatch) {
+              lastIncident = {
+                title: titleMatch[1].replace(/<!\[CDATA\[(.*?)\]\]>/, '$1'),
+                created_at: new Date(dateMatch[1]).toISOString(),
+              };
+            }
+          }
+        }
+      } catch (rssError) {
+        console.warn(`Failed to parse RSS feed for ${jsonUrl}:`, rssError);
+      }
+    }
+
+    return { status, lastIncident };
+  } catch (error) {
+    console.error(`Error parsing Better Stack feed ${jsonUrl}:`, error);
+    return { status: "unknown", lastIncident: null };
+  }
+}
+
+// Normalize Better Stack status values
+function normalizeBetterStackStatus(status) {
+  const lowerStatus = status.toLowerCase();
+  switch (lowerStatus) {
+    case "operational":
+      return "operational";
+    case "degraded":
+      return "degraded";
+    case "partial_outage":
+    case "partial outage":
+      return "degraded";
+    case "major_outage":
+    case "major outage":
+    case "outage":
+      return "incident";
+    case "incident":
+      return "incident";
+    case "maintenance":
+      return "maintenance";
+    default:
+      return "unknown";
+  }
+}
+
 // Fetch status via JSON API
 async function fetchStatusFromAPI(apiUrl) {
   if (!apiUrl) return "unknown";
@@ -885,6 +967,26 @@ Deno.serve(async (_req) => {
       status,
       last_incident: lastIncident,
       last_incident_details: lastIncidentDetails || null,
+      updated_at: new Date(),
+    });
+  }
+  // Process Better Stack services
+  for (const service of services_better_stack) {
+    const { status, lastIncident } = await parseBetterStackFeed(service.json_url, service.rss_url);
+    // Check for status change
+    const oldStatus = currentStatuses.get(service.slug);
+    if (oldStatus && oldStatus !== status) {
+      statusChanges.push({
+        service_slug: service.slug,
+        service_name: service.name,
+        old_status: oldStatus,
+        new_status: status,
+      });
+    }
+    await supabase.from("service_status").upsert({
+      service_slug: service.slug,
+      status,
+      last_incident: lastIncident,
       updated_at: new Date(),
     });
   }

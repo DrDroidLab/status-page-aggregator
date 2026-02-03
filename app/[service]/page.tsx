@@ -29,6 +29,7 @@ import {
   fetchServiceStatus,
   fetchServiceStatusFromAPI,
   fetchServiceStatusFromAtom,
+  fetchServiceStatusFromBetterStack,
   getStatusColor,
   getStatusText,
   type ServiceStatusData,
@@ -1646,11 +1647,6 @@ const getStatusAPIUrl = (service: any) => {
         status: "https://status.openai.com/api/v2/summary.json",
         incidents: "https://status.openai.com/api/v2/incidents.json",
       };
-    case "inkeep":
-      return {
-        status: "https://status.inkeep.com/api/v2/summary.json",
-        incidents: "https://status.inkeep.com/api/v2/incidents.json",
-      };
     default:
       return null;
   }
@@ -1667,6 +1663,18 @@ const getAtomUrl = (service: any) => {
   }
 };
 
+const getBetterStackUrl = (service: any) => {
+  switch (service.slug) {
+    case "inkeep":
+      return {
+        json: "https://status.inkeep.com/index.json",
+        rss: "https://status.inkeep.com/feed",
+      };
+    default:
+      return null;
+  }
+};
+
 export default async function ServiceStatusPage({ params }: PageProps) {
   // Use Promise.resolve to properly handle dynamic params
   const { service: serviceSlug } = await Promise.resolve(params);
@@ -1676,27 +1684,29 @@ export default async function ServiceStatusPage({ params }: PageProps) {
     notFound();
   }
 
-  // Fetch real-time status if RSS feed, Atom feed, or API endpoints are available
+  // Fetch real-time status if RSS feed, Atom feed, Better Stack, or API endpoints are available
   const rssUrl = getRssUrl(service);
   const atomUrl = getAtomUrl(service);
+  const betterStackUrl = getBetterStackUrl(service);
   const apiUrls = getStatusAPIUrl(service);
 
   let statusData: ServiceStatusData;
 
   if (rssUrl) {
-    // Use RSS feed if available
     statusData = await fetchServiceStatus(rssUrl);
   } else if (atomUrl) {
-    // Use Atom feed if available
     statusData = await fetchServiceStatusFromAtom(atomUrl);
+  } else if (betterStackUrl) {
+    statusData = await fetchServiceStatusFromBetterStack(
+      betterStackUrl.json,
+      betterStackUrl.rss
+    );
   } else if (apiUrls) {
-    // Use API endpoints if available
     statusData = await fetchServiceStatusFromAPI(
       apiUrls.status,
       apiUrls.incidents
     );
   } else {
-    // No status source available
     statusData = {
       status: "unknown" as const,
       incidents: [],

@@ -250,6 +250,86 @@ export async function fetchServiceStatusFromAPI(
   }
 }
 
+export async function fetchServiceStatusFromBetterStack(
+  jsonApiUrl: string,
+  rssUrl?: string
+): Promise<ServiceStatusData> {
+  try {
+    // Fetch the Better Stack JSON API
+    const response = await fetch(jsonApiUrl, {
+      next: { revalidate: 300 },
+      cache: "no-store",
+    });
+
+    const data = await response.json();
+
+    // Parse overall status from aggregate_state
+    const overallStatus = normalizeBetterStackStatus(
+      data?.data?.attributes?.aggregate_state || "unknown"
+    );
+
+    // Create incidents from RSS feed (if available)
+    let incidents: StatusIncident[] = [];
+
+    if (rssUrl) {
+      try {
+        const rssResponse = await fetch(rssUrl, {
+          next: { revalidate: 300 },
+          cache: "no-store",
+        });
+        const xmlText = await rssResponse.text();
+        const parser = new XMLParser({
+          ignoreAttributes: false,
+          attributeNamePrefix: "@_",
+          textNodeName: "__text",
+          parseTagValue: true,
+          parseAttributeValue: true,
+          trimValues: true,
+        });
+
+        const rssResult = parser.parse(xmlText);
+        const items = rssResult.rss?.channel?.item || [];
+
+        incidents = items.map((item: any) => {
+          const description = item.description?.__cdata || item.description || "";
+          const title = item.title?.__cdata || item.title || "";
+
+          return {
+            title: title,
+            description: stripHtml(description),
+            htmlDescription: description,
+            status: determineIncidentStatus(description),
+            createdAt: item.pubDate,
+            updatedAt: item.pubDate,
+            components: extractComponents(description),
+          };
+        });
+      } catch (rssError) {
+        console.warn("Failed to fetch RSS incidents:", rssError);
+      }
+    }
+
+    // Sort incidents by date (newest first)
+    incidents.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
+
+    return {
+      status: overallStatus,
+      lastIncident: incidents[0],
+      incidents: incidents.slice(0, 10), // Limit to most recent 10 incidents
+    };
+  } catch (error) {
+    console.error("Error fetching service status from Better Stack:", error);
+    return {
+      status: "unknown",
+      incidents: [],
+    };
+  }
+}
+
 function stripHtml(html: string): string {
   return html
     .replace(/<[^>]*>/g, "") // Remove HTML tags
@@ -555,4 +635,28 @@ function determineOverallStatusFromFeed(
   }
 
   return status;
+}
+
+// Normalize Better Stack status values
+function normalizeBetterStackStatus(status: string): ServiceStatus {
+  const lowerStatus = status.toLowerCase();
+  switch (lowerStatus) {
+    case "operational":
+      return "operational";
+    case "degraded":
+      return "degraded";
+    case "partial_outage":
+    case "partial outage":
+      return "degraded";
+    case "major_outage":
+    case "major outage":
+    case "outage":
+      return "outage";
+    case "incident":
+      return "incident";
+    case "maintenance":
+      return "maintenance";
+    default:
+      return "unknown";
+  }
 }
