@@ -1537,6 +1537,14 @@ const getRssUrl = (service: any) => {
       return "https://status.bunny.net/history.rss";
     case "netlify":
       return "https://www.netlifystatus.com/history.rss";
+    case "aws":
+      return "https://status.aws.amazon.com/rss/all.rss";
+    case "fireworks-ai":
+      return "https://status.fireworks.ai/feed.rss";
+    case "together-ai":
+      return "https://status.together.ai/feed.rss";
+    case "paypal-checkout":
+      return "https://status.paypal.com/feed/rss";
     default:
       return null;
   }
@@ -1646,6 +1654,23 @@ const getStatusAPIUrl = (service: any) => {
       return {
         status: "https://status.openai.com/api/v2/summary.json",
         incidents: "https://status.openai.com/api/v2/incidents.json",
+      };
+    case "mailgun":
+      return {
+        status: "https://status.mailgun.com/api/v2/status.json",
+        incidents: "https://status.mailgun.com/api/v2/incidents.json",
+      };
+    case "oracle-cloud-infrastructure":
+      return {
+        status: "https://ocistatus.oraclecloud.com/api/v2/status.json",
+        incidents: "https://ocistatus.oraclecloud.com/api/v2/incidents.json",
+      };
+    case "stripe-checkout":
+    case "stripe-billing":
+    case "stripe-invoicing":
+      return {
+        status: "https://www.stripestatus.com/api/v2/status.json",
+        incidents: "https://www.stripestatus.com/api/v2/incidents.json",
       };
     default:
       return null;

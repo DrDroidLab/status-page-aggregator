@@ -21,6 +21,7 @@ yarn-error.log*
 
 # production scripts with sensitive data
 Supabase-Deno_Script-Updated.ts
+Supabase-Deno_Script-Production.ts
 test-deno-script.ts
 
 # vercel
