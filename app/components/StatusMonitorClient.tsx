@@ -260,7 +260,7 @@ export function StatusMonitorClient({
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b">
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -272,13 +272,14 @@ export function StatusMonitorClient({
                   height={100}
                   className="object-contain"
                 />
-                <h1 className="text-2xl font-bold text-primary"></h1>
+                <h1 className="text-2xl font-bold text-primary">Debug Production At Machine Speed</h1>
               </div>
+            </div>
+            <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-xs">
                 Open Source
               </Badge>
-            </div>
-            <div className="relative">
+              <div className="relative">
               {/* Sparkle animations */}
               <div className="absolute -top-1 -left-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping opacity-75"></div>
               <div className="absolute -top-2 -right-1 w-2 h-2 bg-blue-400 rounded-full animate-pulse delay-150"></div>
@@ -296,6 +297,7 @@ export function StatusMonitorClient({
                   <Github className="w-4 h-4" />⭐ Star on GitHub
                 </Link>
               </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -452,7 +454,11 @@ export function StatusMonitorClient({
               {displayedServices.map((service) => {
                 const serviceStatus = service.computedStatus as ServiceStatus;
                 return (
-                  <TableRow key={service.slug}>
+                  <TableRow
+                    key={service.slug}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => router.push(`/${service.slug}`)}
+                  >
                     {/* Provider */}
                     <TableCell className="font-medium">
                       {service.name}
@@ -486,7 +492,7 @@ export function StatusMonitorClient({
                     </TableCell>
                     {/* Links */}
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button size="sm" variant="outline" asChild>
                           <Link
                             href={`/${service.slug}`}
