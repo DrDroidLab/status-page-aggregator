@@ -12,5 +12,6 @@ export async function generateStaticParams() {
     { service: "supabase" },
     { service: "vercel" },
     { service: "planetscale" },
+    { service: "inkeep" },
   ]
 }
