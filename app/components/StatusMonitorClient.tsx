@@ -265,19 +265,26 @@ export function StatusMonitorClient({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
-                <img
-                  src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/drdroid-logo.svg`}
-                  alt="DrDroid Logo"
-                  width={100}
-                  height={100}
-                  className="object-contain"
-                />
-                <h1 className="text-2xl font-bold text-primary">Debug Production At Machine Speed</h1>
+                <Link
+                  href="https://www.drdroid.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:opacity-80 transition-opacity"
+                >
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/drdroid-logo.svg`}
+                    alt="DrDroid Logo"
+                    width={100}
+                    height={100}
+                    className="object-contain"
+                  />
+                </Link>
+                <h1 className="text-xl font-semibold text-primary tracking-tight">Debug Production At Machine Speed</h1>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-xs">
-                Open Source
+                Status Checker
               </Badge>
               <div className="relative">
               {/* Sparkle animations */}
