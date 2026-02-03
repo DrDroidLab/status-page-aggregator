@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     // Fetch statuses from Supabase for the requested services
     const { data, error } = await supabase
       .from("service_status")
-      .select("service_slug, status, last_incident, updated_at")
+      .select("service_slug, status, last_incident, last_incident_details, updated_at")
       .in("service_slug", slugs);
 
     if (error) {
@@ -111,6 +111,7 @@ export async function POST(request: NextRequest) {
           slug: slug,
           status: statusData?.status || "unknown",
           last_incident: statusData?.last_incident || null,
+          last_incident_details: statusData?.last_incident_details || null,
           updated_at: statusData?.updated_at || null,
           found: !!statusData,
         };

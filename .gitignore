@@ -19,6 +19,10 @@ yarn-error.log*
 # env files
 .env*
 
+# production scripts with sensitive data
+Supabase-Deno_Script-Updated.ts
+test-deno-script.ts
+
 # vercel
 .vercel
 
