@@ -147,6 +147,12 @@ const services_json = [
     api: "https://www.fastlystatus.com/status.json",
     incident_api: "https://www.fastlystatus.com/incidents.json",
   },
+  {
+    slug: "mailgun",
+    name: "Mailgun",
+    api: "https://status.mailgun.com/api/v2/status.json",
+    incident_api: "https://status.mailgun.com/api/v2/incidents.json",
+  },
 ];
 // Services that need RSS scraping
 const services_rss = [
@@ -219,6 +225,11 @@ const services_rss = [
     slug: "netlify",
     name: "Netlify",
     rss_url: "https://www.netlifystatus.com/history.rss",
+  },
+  {
+    slug: "aws",
+    name: "Amazon Web Services",
+    rss_url: "https://status.aws.amazon.com/rss/all.rss",
   },
 ];
 // Services that need Atom feed scraping
