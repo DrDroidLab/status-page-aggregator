@@ -34,6 +34,8 @@ import {
   getStatusText,
   type ServiceStatusData,
 } from "@/lib/status";
+import { DrDroidCTA } from "@/components/DrDroidCTA";
+import { DrDroidOneLinerCTA } from "@/components/DrDroidOneLinerCTA";
 
 const serviceData = {
   aws: {
@@ -2124,35 +2126,39 @@ export default async function ServiceStatusPage({ params }: PageProps) {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            {/* Left side - Back button */}
+            <Link
+              href="/"
+              prefetch={true}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="sm:hidden">Back</span>
+            </Link>
+
+            {/* Center - Logo and title (hidden on small screens) */}
+            <div className="hidden md:flex items-center gap-3">
               <Link
-                href="/"
-                prefetch={true}
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                href="https://www.drdroid.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Dashboard
+                <img
+                  src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/drdroid-logo.svg`}
+                  alt="DrDroid Logo"
+                  width={100}
+                  height={100}
+                  className="object-contain"
+                />
               </Link>
-              <div className="flex items-center gap-3">
-                <Link
-                  href="https://www.drdroid.io"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:opacity-80 transition-opacity"
-                >
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_BASE_URL}/logos/drdroid-logo.svg`}
-                    alt="DrDroid Logo"
-                    width={100}
-                    height={100}
-                    className="object-contain"
-                  />
-                </Link>
-                <h1 className="text-xl font-semibold text-primary tracking-tight">Debug Production At Machine Speed</h1>
-              </div>
+              <h1 className="text-xl font-semibold text-primary tracking-tight">Debug Production At Machine Speed</h1>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-xs">
+
+            {/* Right side - Badge and GitHub button */}
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs hidden sm:inline-flex">
                 Status Checker
               </Badge>
               <div className="relative">
@@ -2170,7 +2176,9 @@ export default async function ServiceStatusPage({ params }: PageProps) {
                   <Link
                     href="https://github.com/DrDroidLab/status-page-aggregator"
                     className="flex items-center gap-2 font-semibold text-blue-700 hover:text-blue-800">
-                    <Github className="w-4 h-4" />⭐ Star on GitHub
+                    <Github className="w-4 h-4" />
+                    <span className="hidden sm:inline">⭐ Star on GitHub</span>
+                    <span className="sm:hidden">⭐</span>
                   </Link>
                 </Button>
               </div>
@@ -2183,6 +2191,7 @@ export default async function ServiceStatusPage({ params }: PageProps) {
         {/* Status Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">{service.name} Status</h1>
+          <DrDroidOneLinerCTA />
           <div
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 ${getStatusColor(
               statusData.status
@@ -2301,68 +2310,8 @@ export default async function ServiceStatusPage({ params }: PageProps) {
         </div>
 
         {/* DrDroid AI SRE Agent */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                    🤖
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Tired of manual incident investigations?
-                  </h3>
-                  <p className="text-gray-700 mb-4">
-                    <strong>DrDroid</strong> is the AI SRE Agent that understands your production system. Connect your monitoring stack and get root cause analysis in seconds.
-                  </p>
-                  <div className="grid md:grid-cols-2 gap-4 mb-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-white text-xs font-bold">⚡</span>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Auto-investigate alerts & find root causes</h4>
-                        <p className="text-sm text-gray-600">When alerts fire, DrDroid automatically correlates metrics, logs, and deployments to surface root causes in seconds</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-white text-xs font-bold">💬</span>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Ask questions in plain English</h4>
-                        <p className="text-sm text-gray-600">Query your production system through Slack: "Why is API latency spiking?" and get instant investigation results</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-3">
-                    <Button
-                      asChild
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-                      <Link href="https://aiops.drdroid.io/sign-up" target="_blank" className="flex items-center gap-2">
-                        Try Cloud
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      asChild
-                      className="border-2 border-blue-300 text-blue-700 hover:bg-blue-50">
-                      <Link href="https://drdroid.io/mac-app" target="_blank" className="flex items-center gap-2">
-                        Try Locally
-                        <ExternalLink className="w-4 h-4" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-                <div className="absolute top-2 right-2 text-blue-300 text-xs opacity-50">
-                  90% faster incident resolution
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="mb-12">
+          <DrDroidCTA />
         </div>
 
         {/* FAQ Section */}
