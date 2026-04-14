@@ -1241,6 +1241,17 @@ Deno.serve(async (_req) => {
           old_status: oldStatus,
           new_status: status,
         });
+        // Record status transition for trend analysis (fire-and-forget)
+        supabase.from("service_incidents").insert({
+          service_slug: service.slug,
+          status,
+          previous_status: oldStatus,
+          recorded_at: new Date(),
+          incident_details: incidentData.details || null,
+          source: "sync",
+        }).then(({ error }) => {
+          if (error) log(`⚠️ Failed to record incident for ${service.slug}: ${error.message}`, "ERROR");
+        });
       }
       const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
@@ -1275,6 +1286,16 @@ Deno.serve(async (_req) => {
           service_name: service.name,
           old_status: oldStatus,
           new_status: status,
+        });
+        supabase.from("service_incidents").insert({
+          service_slug: service.slug,
+          status,
+          previous_status: oldStatus,
+          recorded_at: new Date(),
+          incident_details: lastIncidentDetails || null,
+          source: "sync",
+        }).then(({ error }) => {
+          if (error) log(`⚠️ Failed to record incident for ${service.slug}: ${error.message}`, "ERROR");
         });
       }
       const response = await supabase.from("service_status").upsert({
@@ -1311,6 +1332,16 @@ Deno.serve(async (_req) => {
           old_status: oldStatus,
           new_status: status,
         });
+        supabase.from("service_incidents").insert({
+          service_slug: service.slug,
+          status,
+          previous_status: oldStatus,
+          recorded_at: new Date(),
+          incident_details: lastIncidentDetails || null,
+          source: "sync",
+        }).then(({ error }) => {
+          if (error) log(`⚠️ Failed to record incident for ${service.slug}: ${error.message}`, "ERROR");
+        });
       }
       const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
@@ -1345,6 +1376,16 @@ Deno.serve(async (_req) => {
           service_name: service.name,
           old_status: oldStatus,
           new_status: status,
+        });
+        supabase.from("service_incidents").insert({
+          service_slug: service.slug,
+          status,
+          previous_status: oldStatus,
+          recorded_at: new Date(),
+          incident_details: lastIncidentDetails || null,
+          source: "sync",
+        }).then(({ error }) => {
+          if (error) log(`⚠️ Failed to record incident for ${service.slug}: ${error.message}`, "ERROR");
         });
       }
       const response = await supabase.from("service_status").upsert({

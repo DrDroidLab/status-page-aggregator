@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { DrDroidCTA } from "@/components/DrDroidCTA";
+import { supabase } from "@/lib/supabase";
 
 type ServiceStatus =
   | "operational"
@@ -82,6 +83,74 @@ function getTagColor(tag: string) {
   return colors[tag as keyof typeof colors] || "bg-gray-100 text-gray-800";
 }
 
+const MONTH_ABBREVS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function TrendSparkline({
+  counts,
+  trendKeys,
+}: {
+  counts: number[] | undefined;
+  trendKeys: string[]; // "YYYY-MM" (monthly) or "YYYY-MM-DD" (daily)
+}) {
+  if (!trendKeys.length) return null;
+
+  const isDaily = trendKeys[0].length === 10; // "YYYY-MM-DD"
+  const n = trendKeys.length;
+  const bars = (!counts || counts.length !== n) ? Array(n).fill(0) : counts;
+  const max = Math.max(...bars, 1);
+
+  // Daily tooltip: "Apr 3 — 2 incidents"
+  const tooltip = (key: string, val: number) => {
+    if (isDaily) {
+      const d = new Date(key + "T00:00:00Z");
+      const label = `${MONTH_ABBREVS[d.getUTCMonth()]} ${d.getUTCDate()}`;
+      return val > 0 ? `${label} — ${val} incident${val !== 1 ? "s" : ""}` : `${label} — none`;
+    }
+    const monthIdx = parseInt(key.slice(5, 7), 10) - 1;
+    const year = key.slice(0, 4);
+    return val > 0
+      ? `${MONTH_ABBREVS[monthIdx]} ${year} — ${val} incident${val !== 1 ? "s" : ""}`
+      : `${MONTH_ABBREVS[monthIdx]} ${year} — none`;
+  };
+
+  return (
+    <div className="flex flex-col" style={{ width: isDaily ? 120 : n <= 6 ? 84 : 120 }}>
+      {/* Bars */}
+      <div className="flex items-end gap-px h-8">
+        {bars.map((val: number, i: number) => (
+          <div
+            key={i}
+            className="flex-1 rounded-sm transition-all"
+            title={tooltip(trendKeys[i], val)}
+            style={{
+              height: val === 0 ? "2px" : `${Math.max((val / max) * 100, 15)}%`,
+              backgroundColor:
+                val === 0 ? "var(--border)" : val >= 4 ? "#ef4444" : "#f97316",
+            }}
+          />
+        ))}
+      </div>
+      {/* Month labels — only for monthly view */}
+      {!isDaily && (
+        <div className="flex items-center gap-px mt-0.5">
+          {trendKeys.map((ym, i) => {
+            const monthIdx = parseInt(ym.slice(5, 7), 10) - 1;
+            const label = n <= 6 ? MONTH_ABBREVS[monthIdx] : MONTH_ABBREVS[monthIdx][0];
+            return (
+              <div
+                key={i}
+                className="flex-1 text-center leading-none text-muted-foreground"
+                style={{ fontSize: 7 }}>
+                {label}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function StatusMonitorClient({
   services,
   statusMap,
@@ -107,6 +176,75 @@ export function StatusMonitorClient({
   const [sortCol, setSortCol] = useState<string>("status");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [displayCount, setDisplayCount] = useState(25);
+
+  // Trend window selector
+  const [trendMonths, setTrendMonths] = useState<number>(12);
+
+  // Trend data: slug → N-bucket incident counts
+  const [trendMap, setTrendMap] = useState<Record<string, number[]>>({});
+  const [trendKeys, setTrendKeys] = useState<string[]>([]); // "YYYY-MM" or "YYYY-MM-DD"
+  const [trendLoading, setTrendLoading] = useState(true);
+  useEffect(() => {
+    setTrendMap({});
+    setTrendLoading(true);
+
+    const nowUtc = new Date();
+    const utcYear = nowUtc.getUTCFullYear();
+    const utcMonth = nowUtc.getUTCMonth(); // 0-indexed
+    const utcDay = nowUtc.getUTCDate();
+
+    let keys: string[];
+    let since: Date;
+    let keySlice: number; // chars to slice from recorded_at for grouping
+
+    if (trendMonths === 1) {
+      // Daily buckets — last 30 days
+      keys = [];
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(Date.UTC(utcYear, utcMonth, utcDay - i));
+        keys.push(d.toISOString().slice(0, 10)); // "YYYY-MM-DD"
+      }
+      since = new Date(Date.UTC(utcYear, utcMonth, utcDay - 29));
+      keySlice = 10;
+    } else {
+      // Monthly buckets
+      keys = [];
+      for (let i = trendMonths - 1; i >= 0; i--) {
+        const d = new Date(Date.UTC(utcYear, utcMonth - i, 1));
+        keys.push(d.toISOString().slice(0, 7)); // "YYYY-MM"
+      }
+      since = new Date(Date.UTC(utcYear, utcMonth - trendMonths, 1));
+      keySlice = 7;
+    }
+    setTrendKeys(keys);
+
+    supabase
+      .from("service_incidents")
+      .select("service_slug, recorded_at")
+      .in("status", ["incident", "degraded", "outage", "maintenance"])
+      .gte("recorded_at", since.toISOString())
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("[trends] Supabase error:", error);
+          setTrendLoading(false);
+          return;
+        }
+        if (!data) { setTrendLoading(false); return; }
+
+        const raw: Record<string, Record<string, number>> = {};
+        for (const row of data) {
+          const bucket = (row.recorded_at as string).slice(0, keySlice);
+          if (!raw[row.service_slug]) raw[row.service_slug] = {};
+          raw[row.service_slug][bucket] = (raw[row.service_slug][bucket] ?? 0) + 1;
+        }
+        const result: Record<string, number[]> = {};
+        for (const [slug, bucketData] of Object.entries(raw)) {
+          result[slug] = keys.map((k) => bucketData[k] ?? 0);
+        }
+        setTrendMap(result);
+        setTrendLoading(false);
+      });
+  }, [trendMonths]);
 
   // Function to update URL params
   const updateUrlParams = (newSearch?: string, newCategory?: string) => {
@@ -343,19 +481,19 @@ export function StatusMonitorClient({
         {/* DrDroid AI SRE Agent */}
         <DrDroidCTA />
 
-        {/* Search Bar */}
-        <div className="flex items-center gap-4 mb-4">
+        {/* Search + Filter Bar */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
           <Input
-            className="w-64"
+            className="w-56"
             placeholder="Search providers, tags, status..."
             value={search}
             onChange={(e) => updateUrlParams(e.target.value)}
           />
-          <span className="font-medium">Filter by Category:</span>
+
           <Select
             value={category}
             onValueChange={(value) => updateUrlParams(undefined, value)}>
-            <SelectTrigger className="w-56">
+            <SelectTrigger className="w-48">
               <SelectValue>
                 {category === "all" ? "All Categories" : category}
               </SelectValue>
@@ -369,6 +507,29 @@ export function StatusMonitorClient({
               ))}
             </SelectContent>
           </Select>
+
+          {/* Trend window picker */}
+          <div className="flex items-center gap-1.5 ml-auto">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Trend:</span>
+            <div className="flex items-center rounded-md border border-border overflow-hidden">
+              {([1, 6, 12] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setTrendMonths(m)}
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${
+                    trendMonths === m
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-background text-muted-foreground hover:bg-accent hover:text-foreground"
+                  }`}>
+                  {m}mo
+                </button>
+              ))}
+            </div>
+            {trendLoading && (
+              <span className="text-xs text-muted-foreground animate-pulse">loading…</span>
+            )}
+          </div>
         </div>
 
         {/* Services Table */}
@@ -390,6 +551,9 @@ export function StatusMonitorClient({
                   className="cursor-pointer select-none"
                   onClick={() => handleSort("lastIncident")}>
                   Last Incident{sortArrow("lastIncident")}
+                </TableHead>
+                <TableHead className="text-xs text-muted-foreground whitespace-nowrap">
+                  {trendMonths}mo trend
                 </TableHead>
                 <TableHead>Links</TableHead>
                 <TableHead
@@ -438,6 +602,10 @@ export function StatusMonitorClient({
                       ) : (
                         <span className="text-muted-foreground">None</span>
                       )}
+                    </TableCell>
+                    {/* Trend sparkline */}
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <TrendSparkline counts={trendMap[service.slug]} trendKeys={trendKeys} />
                     </TableCell>
                     {/* Links */}
                     <TableCell>
