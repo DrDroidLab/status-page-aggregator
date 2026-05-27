@@ -52,12 +52,16 @@ npm install
 
 ### 2. Setup Environment
 
-Create `.env.local`:
+See [`docs/API_AUTHENTICATION.md`](./docs/API_AUTHENTICATION.md) for API keys. Create `.env.local` with:
 
 ```bash
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+# POST /api/services/status — at least one key required
+EXTERNAL_API_KEY=your-cloud-saas-key
+ON_PREM_API_KEY=your-on-prem-only-key   # optional; use for drdroid-on-prem installs
 
 NEXT_PUBLIC_HYPERLOOK_API_KEY=your-hyperlook-key
 
