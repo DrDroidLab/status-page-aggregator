@@ -2104,7 +2104,7 @@ export default async function ServiceStatusPage({ params }: PageProps) {
           <div className="flex items-center justify-between">
             {/* Left side - Back button */}
             <Link
-              href="/"
+              href={process.env.NEXT_PUBLIC_BASE_URL || "/"}
               prefetch={true}
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
