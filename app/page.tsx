@@ -1155,13 +1155,17 @@ function StatusMonitor() {
       !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     );
 
-    // Fetch statuses from Supabase
+    // Fetch statuses from Supabase (+ live cloud fallback when rows missing)
     const fetchStatuses = async () => {
       const { data, error } = await supabase.from("service_status").select("*");
       setStatusRows(data);
       setError(error);
-      // Map statuses by slug for easy lookup
-      const statusMap = (data || []).reduce(
+
+      const { applyCanonicalAliasesToStatusMap } = await import(
+        "@/lib/enrichStatusMap"
+      );
+
+      let statusMap = (data || []).reduce(
         (acc: Record<string, any>, row: any) => {
           acc[row.service_slug] = {
             status: row.status,
@@ -1174,6 +1178,32 @@ function StatusMonitor() {
           return acc;
         },
         {} as Record<string, any>,
+      );
+
+      const cloudCanonicals = ["aws", "google-cloud", "azure"] as const;
+      const missingCloud = cloudCanonicals.filter((s) => !statusMap[s]);
+
+      if (missingCloud.length > 0) {
+        try {
+          const base = process.env.NEXT_PUBLIC_BASE_URL || "";
+          const res = await fetch(`${base}/api/cloud-status`, {
+            cache: "no-store",
+          });
+          if (res.ok) {
+            const live = await res.json();
+            for (const slug of missingCloud) {
+              const row = live.providers?.[slug];
+              if (row) statusMap[slug] = row;
+            }
+          }
+        } catch (e) {
+          console.warn("[status] cloud live fallback failed:", e);
+        }
+      }
+
+      statusMap = applyCanonicalAliasesToStatusMap(
+        statusMap,
+        services.map((s) => s.slug),
       );
       setStatusMap(statusMap);
     };

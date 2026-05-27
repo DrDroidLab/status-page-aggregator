@@ -22,7 +22,27 @@ const SERVICE_SLUG_ALIASES: Record<string, string> = {
 /** Resolve a user-facing slug to the canonical DB slug. */
 export function resolveServiceSlug(slug: string): string {
   const normalized = slug.toLowerCase().trim().replace(/\s+/g, "-");
-  return SERVICE_SLUG_ALIASES[normalized] ?? normalized;
+
+  if (SERVICE_SLUG_ALIASES[normalized]) {
+    return SERVICE_SLUG_ALIASES[normalized];
+  }
+
+  // Product slugs that share the platform status page (same feed as parent cloud)
+  if (normalized === "microsoft-azure" || normalized.startsWith("azure-")) {
+    return "azure";
+  }
+  if (normalized.startsWith("aws-") || normalized.startsWith("amazon-")) {
+    return "aws";
+  }
+  if (
+    normalized === "google-cloud-platform" ||
+    normalized.startsWith("google-cloud") ||
+    normalized.startsWith("google-")
+  ) {
+    return "google-cloud";
+  }
+
+  return normalized;
 }
 
 /** Expand canonical slugs to include aliases (for bulk lookups). */
