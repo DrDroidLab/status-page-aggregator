@@ -1,4 +1,5 @@
 export const revalidate = 0;
+export const dynamicParams = true;
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +37,8 @@ import {
 } from "@/lib/status";
 import { DrDroidCTA } from "@/components/DrDroidCTA";
 import { DrDroidOneLinerCTA } from "@/components/DrDroidOneLinerCTA";
+import { fetchDetailPageStatus } from "@/lib/fetchDetailPageStatus";
+import { resolveDetailService } from "@/lib/resolveDetailService";
 
 const serviceData = {
   aws: {
@@ -2083,42 +2086,15 @@ const getBetterStackUrl = (service: any) => {
 };
 
 export default async function ServiceStatusPage({ params }: PageProps) {
-  // Use Promise.resolve to properly handle dynamic params
   const { service: serviceSlug } = await Promise.resolve(params);
-  const service = serviceData[serviceSlug as keyof typeof serviceData];
+  const service = resolveDetailService(serviceSlug, serviceData);
 
   if (!service) {
     notFound();
   }
 
-  // Fetch real-time status if RSS feed, Atom feed, Better Stack, or API endpoints are available
-  const rssUrl = getRssUrl(service);
-  const atomUrl = getAtomUrl(service);
-  const betterStackUrl = getBetterStackUrl(service);
-  const apiUrls = getStatusAPIUrl(service);
-
-  let statusData: ServiceStatusData;
-
-  if (rssUrl) {
-    statusData = await fetchServiceStatus(rssUrl);
-  } else if (atomUrl) {
-    statusData = await fetchServiceStatusFromAtom(atomUrl);
-  } else if (betterStackUrl) {
-    statusData = await fetchServiceStatusFromBetterStack(
-      betterStackUrl.json,
-      betterStackUrl.rss
-    );
-  } else if (apiUrls) {
-    statusData = await fetchServiceStatusFromAPI(
-      apiUrls.status,
-      apiUrls.incidents
-    );
-  } else {
-    statusData = {
-      status: "unknown" as const,
-      incidents: [],
-    };
-  }
+  const statusData = await fetchDetailPageStatus(service.slug);
+  const hasLiveFeed = statusData.status !== "unknown";
 
   return (
     <div className="min-h-screen bg-background">
@@ -2207,7 +2183,7 @@ export default async function ServiceStatusPage({ params }: PageProps) {
               {new Date(statusData.lastIncident.createdAt).toLocaleDateString()}
             </p>
           )}
-          {!rssUrl && !atomUrl && !apiUrls && (
+          {!hasLiveFeed && (
             <p className="text-muted-foreground mt-2">
               Real-time status updates are not available for this service.
             </p>
@@ -2359,7 +2335,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   // Use Promise.resolve to properly handle dynamic params
   const { service: serviceSlug } = await Promise.resolve(params);
-  const service = serviceData[serviceSlug as keyof typeof serviceData];
+  const service = resolveDetailService(serviceSlug, serviceData);
 
   if (!service) {
     return {
