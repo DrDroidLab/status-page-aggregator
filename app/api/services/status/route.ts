@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { expandSlugQuery, resolveServiceSlug } from "@/lib/serviceSlugAliases";
 import { supabase } from "@/lib/supabase";
 
 /** Cloud / SaaS clients (e.g. aiops-v0). */
@@ -81,14 +82,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Normalize all identifiers to slugs
-    const slugs = serviceIdentifiers.map(normalizeToSlug);
+    // Normalize identifiers and resolve aliases (e.g. microsoft-azure → azure)
+    const slugs = serviceIdentifiers.map((id: string) =>
+      resolveServiceSlug(normalizeToSlug(id)),
+    );
+    const querySlugs = expandSlugQuery(slugs);
 
     // Fetch statuses from Supabase for the requested services
     const { data, error } = await supabase
       .from("service_status")
       .select("service_slug, status, last_incident, last_incident_details, updated_at")
-      .in("service_slug", slugs);
+      .in("service_slug", querySlugs);
 
     if (error) {
       console.error("Error fetching service statuses:", error);
@@ -107,13 +111,23 @@ export async function POST(request: NextRequest) {
     );
 
     // Build response with all requested services
+    const lookupStatus = (canonicalSlug: string) => {
+      for (const key of expandSlugQuery([canonicalSlug])) {
+        const row = statusMap.get(key);
+        if (row) return row;
+      }
+      return undefined;
+    };
+
     const results = serviceIdentifiers.map(
       (identifier: string, index: number) => {
-        const slug = slugs[index];
-        const statusData = statusMap.get(slug);
+        const requestedSlug = normalizeToSlug(identifier);
+        const canonicalSlug = slugs[index];
+        const statusData = lookupStatus(canonicalSlug);
         return {
           service: identifier,
-          slug: slug,
+          slug: requestedSlug,
+          canonical_slug: canonicalSlug,
           status: statusData?.status || "unknown",
           last_incident: statusData?.last_incident || null,
           last_incident_details: statusData?.last_incident_details || null,

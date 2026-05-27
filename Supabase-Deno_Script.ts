@@ -443,6 +443,16 @@ const services_rss = [
     rss_url: "https://status.aws.amazon.com/rss/all.rss",
   },
   {
+    slug: "azure",
+    name: "Microsoft Azure",
+    rss_url: "https://azure.status.microsoft/en-us/status/feed/",
+  },
+  {
+    slug: "microsoft-azure",
+    name: "Microsoft Azure",
+    rss_url: "https://azure.status.microsoft/en-us/status/feed/",
+  },
+  {
     slug: "neon",
     name: "Neon",
     rss_url: "https://neonstatus.com/pages/6878fc85709daa75be6c7e3c/rss",
@@ -503,6 +513,11 @@ const services_atom = [
   {
     slug: "google-cloud",
     name: "Google Cloud",
+    atom_url: "https://status.cloud.google.com/en/feed.atom",
+  },
+  {
+    slug: "google-cloud-platform",
+    name: "Google Cloud Platform",
     atom_url: "https://status.cloud.google.com/en/feed.atom",
   },
   {
@@ -798,9 +813,14 @@ function determineIncidentStatus(content) {
 }
 
 // Parse RSS feed and extract latest incident info
+const STATUS_FETCH_HEADERS = {
+  "User-Agent": "DrDroid-StatusAggregator/1.0 (+https://drdroid.io/status-page-aggregator)",
+  Accept: "application/rss+xml, application/xml, application/atom+xml, text/xml, */*",
+};
+
 async function parseRSSFeed(rssUrl) {
   try {
-    const response = await fetch(rssUrl);
+    const response = await fetch(rssUrl, { headers: STATUS_FETCH_HEADERS });
     if (!response.ok)
       throw new Error(`Failed to fetch RSS: ${response.status}`);
     const xmlText = await response.text();
@@ -958,7 +978,7 @@ async function parseRSSFeed(rssUrl) {
 // Parse Atom feed and extract latest incident info
 async function parseAtomFeed(atomUrl) {
   try {
-    const response = await fetch(atomUrl);
+    const response = await fetch(atomUrl, { headers: STATUS_FETCH_HEADERS });
     if (!response.ok)
       throw new Error(`Failed to fetch Atom: ${response.status}`);
     const xmlText = await response.text();
