@@ -1,38 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
-// API Key for authentication - read from environment variable
-const API_KEY = process.env.EXTERNAL_API_KEY;
+/** Cloud / SaaS clients (e.g. aiops-v0). */
+const EXTERNAL_API_KEY = process.env.EXTERNAL_API_KEY?.trim() || "";
+/** On-prem DrDroid installs only — separate key for rotation and auditing. */
+const ON_PREM_API_KEY = process.env.ON_PREM_API_KEY?.trim() || "";
 
-if (!API_KEY) {
+const ALLOWED_API_KEYS = new Set(
+  [EXTERNAL_API_KEY, ON_PREM_API_KEY].filter((key) => key.length > 0),
+);
+
+if (ALLOWED_API_KEYS.size === 0) {
   console.error(
-    "EXTERNAL_API_KEY environment variable is not set. API authentication will fail.",
+    "Neither EXTERNAL_API_KEY nor ON_PREM_API_KEY is set. API authentication will fail.",
   );
 }
 
-// Helper function to validate API key from request headers
+function extractApiKeyFromRequest(request: NextRequest): string | null {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader) {
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (token) return token;
+  }
+
+  const apiKeyHeader = request.headers.get("x-api-key");
+  if (apiKeyHeader) {
+    return apiKeyHeader.trim();
+  }
+
+  return null;
+}
+
 function validateApiKey(request: NextRequest): boolean {
-  // If API key is not configured, reject all requests
-  if (!API_KEY) {
+  if (ALLOWED_API_KEYS.size === 0) {
     return false;
   }
 
-  // Check for API key in Authorization header (Bearer token)
-  const authHeader = request.headers.get("authorization");
-  if (authHeader) {
-    const token = authHeader.replace("Bearer ", "").trim();
-    if (token === API_KEY) {
-      return true;
-    }
-  }
-
-  // Check for API key in X-API-Key header
-  const apiKeyHeader = request.headers.get("x-api-key");
-  if (apiKeyHeader && apiKeyHeader === API_KEY) {
-    return true;
-  }
-
-  return false;
+  const token = extractApiKeyFromRequest(request);
+  return token !== null && ALLOWED_API_KEYS.has(token);
 }
 
 // Helper function to normalize service identifier to slug (case-insensitive)
