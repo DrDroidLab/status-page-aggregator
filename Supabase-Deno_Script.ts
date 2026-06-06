@@ -583,20 +583,37 @@ async function sendEmailNotification(subject, message) {
     log(`Error sending email notification: ${error}`, "ERROR");
   }
 }
-// Get current statuses from database
-async function getCurrentStatuses() {
+// Get current service rows from database (status + last known incident)
+async function getCurrentServiceRows() {
   const { data, error } = await supabase
     .from("service_status")
-    .select("service_slug, status");
+    .select("service_slug, status, last_incident, last_incident_details");
   if (error) {
     log(`Error fetching current statuses: ${error}`, "ERROR");
     return new Map();
   }
-  const statusMap = new Map();
+  const rowMap = new Map();
   data?.forEach((row) => {
-    statusMap.set(row.service_slug, row.status);
+    rowMap.set(row.service_slug, row);
   });
-  return statusMap;
+  return rowMap;
+}
+
+// Keep stored last_incident when the feed is empty (e.g. Azure RSS after mitigation)
+function mergeLastIncidentFromFeed(feedLastIncident, feedDetails, existing) {
+  if (feedLastIncident != null) {
+    return {
+      last_incident: feedLastIncident,
+      last_incident_details: feedDetails ?? null,
+    };
+  }
+  if (existing?.last_incident) {
+    return {
+      last_incident: existing.last_incident,
+      last_incident_details: existing.last_incident_details ?? null,
+    };
+  }
+  return { last_incident: null, last_incident_details: null };
 }
 // Get services currently experiencing incidents
 async function getIncidentServices() {
@@ -1241,8 +1258,8 @@ async function fetchStatusFromAPI(apiUrl) {
 // Main function
 Deno.serve(async (_req) => {
   log("Starting status update job...", "SUMMARY");
-  // Get current statuses before updating
-  const currentStatuses = await getCurrentStatuses();
+  // Get current rows before updating
+  const currentServiceRows = await getCurrentServiceRows();
   const statusChanges = [];
   let successCount = 0;
   let failureCount = 0;
@@ -1252,8 +1269,14 @@ Deno.serve(async (_req) => {
       log(`Processing JSON service: ${service.slug}`, "VERBOSE");
       const status = await fetchStatusFromAPI(service.api);
       const incidentData = await fetchLatestIncident(service.incident_api);
+      const existing = currentServiceRows.get(service.slug);
+      const { last_incident, last_incident_details } = mergeLastIncidentFromFeed(
+        incidentData.timestamp,
+        incidentData.details || null,
+        existing,
+      );
       // Check for status change
-      const oldStatus = currentStatuses.get(service.slug);
+      const oldStatus = existing?.status;
       if (oldStatus && oldStatus !== status) {
         statusChanges.push({
           service_slug: service.slug,
@@ -1276,8 +1299,8 @@ Deno.serve(async (_req) => {
       const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
         status,
-        last_incident: incidentData.timestamp,
-        last_incident_details: incidentData.details || null,
+        last_incident,
+        last_incident_details,
         updated_at: new Date(),
       });
       if (response?.error) {
@@ -1298,8 +1321,14 @@ Deno.serve(async (_req) => {
     try {
       log(`Processing RSS service: ${service.slug}`, "VERBOSE");
       const { status, lastIncident, lastIncidentDetails } = await parseRSSFeed(service.rss_url);
+      const existing = currentServiceRows.get(service.slug);
+      const { last_incident, last_incident_details } = mergeLastIncidentFromFeed(
+        lastIncident,
+        lastIncidentDetails || null,
+        existing,
+      );
       // Check for status change
-      const oldStatus = currentStatuses.get(service.slug);
+      const oldStatus = existing?.status;
       if (oldStatus && oldStatus !== status) {
         statusChanges.push({
           service_slug: service.slug,
@@ -1321,8 +1350,8 @@ Deno.serve(async (_req) => {
       const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
         status,
-        last_incident: lastIncident,
-        last_incident_details: lastIncidentDetails || null,
+        last_incident,
+        last_incident_details,
         updated_at: new Date(),
       });
       if (response?.error) {
@@ -1343,8 +1372,14 @@ Deno.serve(async (_req) => {
     try {
       log(`Processing Atom service: ${service.slug}`, "VERBOSE");
       const { status, lastIncident, lastIncidentDetails } = await parseAtomFeed(service.atom_url);
+      const existing = currentServiceRows.get(service.slug);
+      const { last_incident, last_incident_details } = mergeLastIncidentFromFeed(
+        lastIncident,
+        lastIncidentDetails || null,
+        existing,
+      );
       // Check for status change
-      const oldStatus = currentStatuses.get(service.slug);
+      const oldStatus = existing?.status;
       if (oldStatus && oldStatus !== status) {
         statusChanges.push({
           service_slug: service.slug,
@@ -1366,8 +1401,8 @@ Deno.serve(async (_req) => {
       const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
         status,
-        last_incident: lastIncident,
-        last_incident_details: lastIncidentDetails || null,
+        last_incident,
+        last_incident_details,
         updated_at: new Date(),
       });
       if (response?.error) {
@@ -1388,8 +1423,14 @@ Deno.serve(async (_req) => {
     try {
       log(`Processing Better Stack service: ${service.slug}`, "VERBOSE");
       const { status, lastIncident, lastIncidentDetails } = await parseBetterStackFeed(service.json_url, service.rss_url);
+      const existing = currentServiceRows.get(service.slug);
+      const { last_incident, last_incident_details } = mergeLastIncidentFromFeed(
+        lastIncident,
+        lastIncidentDetails || null,
+        existing,
+      );
       // Check for status change
-      const oldStatus = currentStatuses.get(service.slug);
+      const oldStatus = existing?.status;
       if (oldStatus && oldStatus !== status) {
         statusChanges.push({
           service_slug: service.slug,
@@ -1411,8 +1452,8 @@ Deno.serve(async (_req) => {
       const response = await supabase.from("service_status").upsert({
         service_slug: service.slug,
         status,
-        last_incident: lastIncident,
-        last_incident_details: lastIncidentDetails || null,
+        last_incident,
+        last_incident_details,
         updated_at: new Date(),
       });
       if (response?.error) {
