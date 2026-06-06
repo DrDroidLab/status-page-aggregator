@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  fetchLiveCloudStatus,
+  isCloudCanonicalSlug,
+} from "@/lib/fetchLiveCloudStatus";
 import { expandSlugQuery, resolveServiceSlug } from "@/lib/serviceSlugAliases";
 import { supabase } from "@/lib/supabase";
 
@@ -45,6 +49,25 @@ function validateApiKey(request: NextRequest): boolean {
 function normalizeToSlug(identifier: string): string {
   // Convert to lowercase and replace spaces with hyphens
   return identifier.toLowerCase().trim().replace(/\s+/g, "-");
+}
+
+type StatusRow = {
+  service_slug: string;
+  status: string;
+  last_incident: string | null;
+  last_incident_details: unknown;
+  updated_at: string | null;
+};
+
+function lookupStatusFromMap(
+  map: Map<string, StatusRow>,
+  canonicalSlug: string,
+): StatusRow | undefined {
+  for (const key of expandSlugQuery([canonicalSlug])) {
+    const row = map.get(key);
+    if (row) return row;
+  }
+  return undefined;
 }
 
 export async function POST(request: NextRequest) {
@@ -106,18 +129,30 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a map for quick lookup
-    const statusMap = new Map(
-      data?.map((row) => [row.service_slug, row]) || [],
+    const statusMap = new Map<string, StatusRow>(
+      data?.map((row) => [row.service_slug, row as StatusRow]) || [],
     );
 
-    // Build response with all requested services
-    const lookupStatus = (canonicalSlug: string) => {
-      for (const key of expandSlugQuery([canonicalSlug])) {
-        const row = statusMap.get(key);
-        if (row) return row;
+    // Same live-feed fallback as the dashboard when Supabase lacks cloud rows
+    const missingCloud = [...new Set(slugs)]
+      .filter(isCloudCanonicalSlug)
+      .filter((slug) => !lookupStatusFromMap(statusMap, slug));
+
+    if (missingCloud.length > 0) {
+      const liveCloud = await fetchLiveCloudStatus(missingCloud);
+      for (const [slug, row] of liveCloud) {
+        statusMap.set(slug, {
+          service_slug: slug,
+          status: row.status,
+          last_incident: row.last_incident,
+          last_incident_details: row.last_incident_details,
+          updated_at: row.updated_at,
+        });
       }
-      return undefined;
-    };
+    }
+
+    const lookupStatus = (canonicalSlug: string) =>
+      lookupStatusFromMap(statusMap, canonicalSlug);
 
     const results = serviceIdentifiers.map(
       (identifier: string, index: number) => {
